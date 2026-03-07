@@ -1,2 +1,86 @@
-// .landing-page-container {
-// }
+@use "../variables.scss" as vars;
+
+.landing-page-container {
+  display: flex;
+  flex-direction: column;
+
+  .main-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - vars.$navbar-height);
+    text-align: center;
+    padding-inline: 3rem;
+
+    .main-section-title {
+      font-weight: 700;
+      font-size: 3.8rem;
+      margin-bottom: 1.5rem;
+
+      .primary-text {
+        color: vars.$primary-color;
+      }
+    }
+
+    .main-section-description {
+      color: #65758c;
+      font-size: 1.2rem;
+      margin-bottom: 2.3rem;
+    }
+
+    .main-section-buttons {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 4.5rem;
+
+      .main-section-get-started-button {
+        display: flex;
+        align-items: center;
+        font-weight: 500;
+        gap: 1.2rem;
+        background-color: vars.$primary-color;
+        padding: 0.8rem 2.2rem;
+        border-radius: 8px;
+        cursor: pointer;
+        color: #fff;
+
+        &:hover {
+          opacity: 0.85;
+        }
+      }
+
+      .main-section-sign-in-button {
+        font-weight: 500;
+        padding: 0.8rem 2.2rem;
+        border-radius: 8px;
+        border: 1px solid #e1e8f0;
+        cursor: pointer;
+
+        &:hover {
+          background-color: #f2f6fa;
+        }
+      }
+    }
+
+    .main-section-features {
+      display: flex;
+      gap: 2rem;
+
+      .feature-container {
+        .feature-title {
+          color: vars.$primary-color;
+          font-weight: 700;
+          font-size: 1.5rem;
+          margin-bottom: 0.5rem;
+        }
+
+        .feature-description {
+          color: vars.$gray-color;
+          font-size: 1rem;
+        }
+      }
+    }
+  }
+}
