@@ -2,6 +2,8 @@
 @use "reset";
 @use "variables";
 
+@use "./components/Navbar.scss";
+
 @use "./pages/landing";
 @use "./pages/login";
 @use "./pages/signup";

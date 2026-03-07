@@ -1,0 +1,55 @@
+@use "../variables.scss" as vars;
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: vars.$navbar-height;
+  padding-inline: 3rem;
+  border-bottom: 1px solid #e1e8f0;
+
+  .navbar-logo {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    img {
+      width: 2.2rem;
+      height: auto;
+    }
+
+    .navbar-logo-text {
+      font-weight: 700;
+      font-size: 1.4rem;
+    }
+  }
+
+  .navbar-buttons {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+
+    .sign-in-button {
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+
+      &:hover {
+        background-color: #f2f6fa;
+      }
+    }
+
+    .get-started-button {
+      background-color: vars.$primary-color;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #fff;
+
+      &:hover {
+        opacity: 0.85;
+      }
+    }
+  }
+}
