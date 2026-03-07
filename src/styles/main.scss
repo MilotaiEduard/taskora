@@ -1,0 +1,14 @@
+@use "mixins";
+@use "reset";
+@use "variables";
+
+@use "./pages/landing";
+@use "./pages/login";
+@use "./pages/signup";
+@use "./pages/dashboard";
+@use "./pages/projects";
+@use "./pages/newsletters";
+@use "./pages/tasks";
+@use "./pages/calendar";
+@use "./pages/employees";
+@use "./pages/settings";
