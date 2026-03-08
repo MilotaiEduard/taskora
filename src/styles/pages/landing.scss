@@ -3,6 +3,7 @@
 .landing-page-container {
   display: flex;
   flex-direction: column;
+  padding-top: vars.$navbar-height;
 
   .main-section {
     display: flex;
@@ -77,6 +78,82 @@
         }
 
         .feature-description {
+          color: vars.$gray-color;
+          font-size: 1rem;
+        }
+      }
+    }
+  }
+
+  .features-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #fafafa;
+    padding: 4.5rem 3rem;
+
+    .features-section-title {
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin-bottom: 0.8rem;
+    }
+
+    .features-section-subtitle {
+      color: #64748b;
+      text-align: center;
+      font-size: 1.2rem;
+      margin-bottom: 4rem;
+    }
+
+    .features-section-cards {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+
+      .features-section-card {
+        box-sizing: border-box;
+        width: calc((100% - 3rem) / 3);
+        height: 12.8rem;
+        background-color: #fff;
+        border: 1px solid #e1e8f0;
+        padding: 1.5rem;
+        border-radius: 6px;
+        transition: box-shadow 0.25s ease;
+
+        &:hover {
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .features-section-card-icon-badge {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 1.5rem;
+
+          .features-section-card-icon {
+            color: vars.$primary-color;
+            font-size: 1.4rem;
+          }
+
+          .features-section-card-badge {
+            font-weight: 500;
+            font-size: 0.75rem;
+            background-color: #f1f5f9;
+            padding: 0.2rem 0.6rem;
+            border-radius: 2rem;
+          }
+        }
+
+        .features-section-card-title {
+          margin-bottom: 1.5rem;
+          font-weight: 600;
+          font-size: 1.2rem;
+        }
+
+        .features-section-card-description {
           color: vars.$gray-color;
           font-size: 1rem;
         }

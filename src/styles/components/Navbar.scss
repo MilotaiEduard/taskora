@@ -7,6 +7,14 @@
   height: vars.$navbar-height;
   padding-inline: 3rem;
   border-bottom: 1px solid #e1e8f0;
+  position: fixed;
+  z-index: 100;
+  width: 100%;
+  top: 0;
+  left: 0;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 
   .navbar-logo {
     display: flex;
