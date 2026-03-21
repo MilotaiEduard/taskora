@@ -1,12 +1,21 @@
 import { Link } from "@tanstack/react-router";
 
 export default function Navbar() {
+  function scrollToTop() {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }
+
   return (
     <div className="navbar">
-      <div className="navbar-logo">
-        <img src="/assets/images/taskora-logo.png" alt="Taskora Logo" />
-        <div className="navbar-logo-text">Taskora</div>
-      </div>
+      <Link to="/" className="navbar-logo" onClick={() => scrollToTop()}>
+        <img
+          src="/assets/images/taskora-text-logo.png"
+          alt="Taskora Text Logo"
+        />
+      </Link>
 
       <div className="navbar-buttons">
         <Link to="/login" className="sign-in-button">

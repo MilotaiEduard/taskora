@@ -16,7 +16,8 @@
     padding-inline: 3rem;
 
     @include mixin.tablet-mobile {
-      padding-inline: 1rem;
+      min-height: initial;
+      padding: 2.5rem 1rem;
     }
 
     .main-section-title {
@@ -25,7 +26,7 @@
       margin-bottom: 1.5rem;
 
       @include mixin.tablet-mobile {
-        font-size: 2.1rem;
+        font-size: 1.9rem;
       }
 
       .primary-text {
