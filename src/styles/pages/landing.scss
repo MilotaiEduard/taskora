@@ -26,7 +26,7 @@
       margin-bottom: 1.5rem;
 
       @include mixin.tablet-mobile {
-        font-size: 1.9rem;
+        font-size: 1.7rem;
       }
 
       .primary-text {
@@ -40,6 +40,8 @@
       margin-bottom: 2.3rem;
 
       @include mixin.tablet-mobile {
+        font-size: 1.1rem;
+
         .mobile-no-br {
           display: none;
         }
@@ -135,7 +137,7 @@
       text-align: center;
 
       @include mixin.tablet-mobile {
-        font-size: 1.9rem;
+        font-size: 1.7rem;
       }
     }
 
@@ -147,6 +149,7 @@
 
       @include mixin.tablet-mobile {
         margin-bottom: 3rem;
+        font-size: 1.1rem;
 
         .mobile-no-br {
           display: none;
@@ -231,7 +234,7 @@
       text-align: center;
 
       @include mixin.tablet-mobile {
-        font-size: 1.9rem;
+        font-size: 1.7rem;
       }
     }
 
@@ -243,6 +246,7 @@
 
       @include mixin.tablet-mobile {
         margin-bottom: 3rem;
+        font-size: 1.1rem;
 
         .mobile-no-br {
           display: none;
@@ -331,7 +335,7 @@
       text-align: center;
 
       @include mixin.tablet-mobile {
-        font-size: 1.9rem;
+        font-size: 1.7rem;
       }
     }
 
@@ -343,6 +347,7 @@
 
       @include mixin.tablet-mobile {
         margin-bottom: 3rem;
+        font-size: 1.1rem;
       }
     }
 
