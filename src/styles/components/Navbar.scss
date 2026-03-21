@@ -1,4 +1,5 @@
 @use "../variables.scss" as vars;
+@use "../mixins.scss" as mixin;
 
 .navbar {
   display: flex;
@@ -16,19 +17,35 @@
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 
+  @include mixin.tablet-mobile {
+    padding-inline: 1rem;
+  }
+
   .navbar-logo {
     display: flex;
     align-items: center;
     gap: 1rem;
 
+    @include mixin.tablet-mobile {
+      gap: 0.5rem;
+    }
+
     img {
       width: 2.2rem;
       height: auto;
+
+      @include mixin.tablet-mobile {
+        width: 1.8rem;
+      }
     }
 
     .navbar-logo-text {
       font-weight: 700;
       font-size: 1.4rem;
+
+      @include mixin.tablet-mobile {
+        font-size: 1.2rem;
+      }
     }
   }
 
@@ -37,6 +54,15 @@
     align-items: center;
     gap: 1.2rem;
     user-select: none;
+
+    @include mixin.tablet-mobile {
+      gap: 0.5rem;
+    }
+
+    a {
+      text-decoration: none;
+      color: initial;
+    }
 
     .sign-in-button {
       font-weight: 500;

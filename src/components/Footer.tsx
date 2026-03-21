@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { FaArrowRight } from "react-icons/fa";
 
 export default function Footer() {
@@ -5,7 +6,7 @@ export default function Footer() {
     <div className="footer">
       <div className="footer-main">
         <div className="footer-main-title">
-          Gata să îți organizezi proiectele <br />
+          Gata să îți organizezi proiectele <br className="mobile-no-br" />
           mai eficient?
         </div>
         <div className="footer-main-subtitle">
@@ -13,10 +14,12 @@ export default function Footer() {
         </div>
 
         <div className="footer-main-buttons">
-          <div className="footer-main-get-started-button">
+          <Link to="/signup" className="footer-main-get-started-button">
             Începe gratuit <FaArrowRight />
-          </div>
-          <div className="footer-main-sign-in-button">Autentificare</div>
+          </Link>
+          <Link to="/login" className="footer-main-sign-in-button">
+            Autentificare
+          </Link>
         </div>
       </div>
       <div className="footer-credit">

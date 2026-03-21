@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import Navbar from "../components/Navbar";
 import { FaArrowRight } from "react-icons/fa";
 import { GrProjects } from "react-icons/gr";
@@ -59,15 +59,18 @@ function RouteComponent() {
         <div className="main-section-description">
           Taskora combină managementul proiectelor, organizarea task-urilor și
           coordonarea echipei într-o singură platformă.
-          <br /> Creează proiecte, atribuie task-uri, gestionează newslettere și
-          urmărește progresul echipei tale în timp real.
+          <br className="mobile-no-br" /> Creează proiecte, atribuie task-uri,
+          gestionează newslettere și urmărește progresul echipei tale în timp
+          real.
         </div>
 
         <div className="main-section-buttons">
-          <div className="main-section-get-started-button">
+          <Link to="/signup" className="main-section-get-started-button">
             Începe gratuit <FaArrowRight />
-          </div>
-          <div className="main-section-sign-in-button">Autentificare</div>
+          </Link>
+          <Link to="/login" className="main-section-sign-in-button">
+            Autentificare
+          </Link>
         </div>
 
         <div className="main-section-features">
@@ -87,8 +90,8 @@ function RouteComponent() {
 
         <div className="features-section-subtitle">
           Taskora îți oferă toate funcționalitățile necesare pentru a organiza
-          proiecte, atribui task-uri și <br /> coordona echipa într-o singură
-          platformă simplă și eficientă.
+          proiecte, atribui task-uri și <br className="mobile-no-br" /> coordona
+          echipa într-o singură platformă simplă și eficientă.
         </div>
 
         <div className="features-section-cards">
@@ -116,7 +119,7 @@ function RouteComponent() {
 
         <div className="built-for-section-subtitle">
           Taskora se adaptează nevoilor tale, de la organizarea personală a
-          task-urilor <br />
+          task-urilor <br className="mobile-no-br" />
           până la gestionarea proiectelor pentru echipe.
         </div>
 

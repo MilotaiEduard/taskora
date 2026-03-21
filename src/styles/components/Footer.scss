@@ -1,10 +1,15 @@
 @use "../variables.scss" as vars;
+@use "../mixins.scss" as mixin;
 
 .footer {
   display: flex;
   flex-direction: column;
   width: calc(100% + 6rem);
   margin-top: 4.5rem;
+
+  @include mixin.tablet-mobile {
+    width: calc(100% + 2rem);
+  }
 
   .footer-main {
     display: flex;
@@ -15,22 +20,42 @@
     background-color: vars.$primary-color;
     color: #fff;
 
+    @include mixin.tablet-mobile {
+      padding: 2.5rem 1rem;
+    }
+
     .footer-main-title {
       font-weight: 700;
       font-size: 3rem;
       text-align: center;
       margin-bottom: 1rem;
+
+      @include mixin.tablet-mobile {
+        .mobile-no-br {
+          display: none;
+        }
+      }
+
+      @include mixin.tablet-mobile {
+        font-size: 1.9rem;
+      }
     }
 
     .footer-main-subtitle {
       font-size: 1.2rem;
       margin-bottom: 2rem;
+      text-align: center;
     }
 
     .footer-main-buttons {
       display: flex;
       align-items: center;
       gap: 1rem;
+
+      a {
+        text-decoration: none;
+        color: initial;
+      }
 
       .footer-main-get-started-button {
         display: flex;
@@ -43,6 +68,10 @@
         border-radius: 8px;
         cursor: pointer;
         color: #000;
+
+        @include mixin.tablet-mobile {
+          padding: 0.8rem 1rem;
+        }
 
         &:hover {
           background-color: #f2f6fa;

@@ -1,4 +1,5 @@
 @use "../variables.scss" as vars;
+@use "../mixins.scss" as mixin;
 
 .landing-page-container {
   display: flex;
@@ -14,10 +15,18 @@
     text-align: center;
     padding-inline: 3rem;
 
+    @include mixin.tablet-mobile {
+      padding-inline: 1rem;
+    }
+
     .main-section-title {
       font-weight: 700;
       font-size: 3.8rem;
       margin-bottom: 1.5rem;
+
+      @include mixin.tablet-mobile {
+        font-size: 2.1rem;
+      }
 
       .primary-text {
         color: vars.$primary-color;
@@ -28,6 +37,12 @@
       color: #65758c;
       font-size: 1.2rem;
       margin-bottom: 2.3rem;
+
+      @include mixin.tablet-mobile {
+        .mobile-no-br {
+          display: none;
+        }
+      }
     }
 
     .main-section-buttons {
@@ -35,6 +50,16 @@
       align-items: center;
       gap: 1rem;
       margin-bottom: 4.5rem;
+
+      @include mixin.tablet-mobile {
+        flex-direction: column;
+        margin-bottom: 2.3rem;
+      }
+
+      a {
+        text-decoration: none;
+        color: initial;
+      }
 
       .main-section-get-started-button {
         display: flex;
@@ -69,6 +94,11 @@
       display: flex;
       gap: 2rem;
 
+      @include mixin.tablet-mobile {
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
       .feature-container {
         .feature-title {
           color: vars.$primary-color;
@@ -93,10 +123,19 @@
     background-color: #fafafa;
     padding: 4.5rem 3rem;
 
+    @include mixin.tablet-mobile {
+      padding: 2.5rem 1rem;
+    }
+
     .features-section-title {
       font-size: 2.2rem;
       font-weight: 700;
       margin-bottom: 0.8rem;
+      text-align: center;
+
+      @include mixin.tablet-mobile {
+        font-size: 1.9rem;
+      }
     }
 
     .features-section-subtitle {
@@ -104,6 +143,14 @@
       text-align: center;
       font-size: 1.2rem;
       margin-bottom: 4rem;
+
+      @include mixin.tablet-mobile {
+        margin-bottom: 3rem;
+
+        .mobile-no-br {
+          display: none;
+        }
+      }
     }
 
     .features-section-cards {
@@ -122,6 +169,10 @@
         padding: 1.5rem;
         border-radius: 6px;
         transition: box-shadow 0.25s ease;
+
+        @include mixin.tablet-mobile {
+          width: 100%;
+        }
 
         &:hover {
           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
@@ -168,11 +219,19 @@
     align-items: center;
     padding: 4.5rem 3rem;
 
+    @include mixin.tablet-mobile {
+      padding: 2.5rem 1rem;
+    }
+
     .built-for-section-title {
       font-size: 2.2rem;
       font-weight: 700;
       margin-bottom: 0.8rem;
       text-align: center;
+
+      @include mixin.tablet-mobile {
+        font-size: 1.9rem;
+      }
     }
 
     .built-for-section-subtitle {
@@ -180,6 +239,14 @@
       text-align: center;
       font-size: 1.2rem;
       margin-bottom: 4rem;
+
+      @include mixin.tablet-mobile {
+        margin-bottom: 3rem;
+
+        .mobile-no-br {
+          display: none;
+        }
+      }
     }
 
     .built-for-section-cards {
@@ -197,6 +264,10 @@
         border-radius: 6px;
         transition: box-shadow 0.25s ease;
         height: 100%;
+
+        @include mixin.tablet-mobile {
+          width: 100%;
+        }
 
         &:hover {
           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
@@ -248,10 +319,19 @@
     background-color: #fafafa;
     padding: 4.5rem 3rem 0;
 
+    @include mixin.tablet-mobile {
+      padding: 2.5rem 1rem 0;
+    }
+
     .quality-features-section-title {
       font-size: 2.2rem;
       font-weight: 700;
       margin-bottom: 0.8rem;
+      text-align: center;
+
+      @include mixin.tablet-mobile {
+        font-size: 1.9rem;
+      }
     }
 
     .quality-features-section-subtitle {
@@ -259,6 +339,10 @@
       text-align: center;
       font-size: 1.2rem;
       margin-bottom: 4rem;
+
+      @include mixin.tablet-mobile {
+        margin-bottom: 3rem;
+      }
     }
 
     .quality-features-section-cards {
@@ -277,6 +361,10 @@
         padding: 2rem 1.5rem;
         border-radius: 6px;
         transition: box-shadow 0.25s ease;
+
+        @include mixin.tablet-mobile {
+          width: 100%;
+        }
 
         &:hover {
           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);

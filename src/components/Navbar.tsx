@@ -1,3 +1,5 @@
+import { Link } from "@tanstack/react-router";
+
 export default function Navbar() {
   return (
     <div className="navbar">
@@ -7,8 +9,12 @@ export default function Navbar() {
       </div>
 
       <div className="navbar-buttons">
-        <div className="sign-in-button">Autentificare</div>
-        <div className="get-started-button">Începe acum</div>
+        <Link to="/login" className="sign-in-button">
+          Autentificare
+        </Link>
+        <Link to="/signup" className="get-started-button">
+          Începe acum
+        </Link>
       </div>
     </div>
   );
