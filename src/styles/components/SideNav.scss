@@ -1,0 +1,126 @@
+@use "../variables.scss" as vars;
+
+.sidenav-container {
+  display: flex;
+  flex-direction: column;
+  width: 20%;
+  padding: 1rem;
+  min-height: 100%;
+  background-color: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+  .sidenav-logo {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 3rem;
+    margin-top: 0.5rem;
+
+    img {
+      width: 10rem;
+      height: auto;
+    }
+  }
+  .sidenav-pages-container {
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
+    justify-content: space-between;
+
+    .sidenav-pages {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+
+      .sidenav-page {
+        display: flex;
+        gap: 0.7rem;
+        padding: 0.6rem 1rem;
+        border-radius: 0.6rem;
+        color: vars.$gray-color;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        border-left: 3px solid transparent;
+
+        .sidenav-page-icon {
+          font-size: 1.1rem;
+        }
+
+        &:hover {
+          background-color: rgba(vars.$primary-color, 0.08);
+          color: vars.$primary-color;
+        }
+
+        &.active {
+          background-color: rgba(vars.$primary-color, 0.12);
+          color: vars.$primary-color;
+          font-weight: 600;
+          border-left: 3px solid vars.$primary-color;
+        }
+      }
+    }
+
+    .sidenav-footer {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+
+      .sidenav-footer-link {
+        display: flex;
+        gap: 0.7rem;
+        padding: 0.6rem 1rem;
+        border-radius: 0.6rem;
+        color: vars.$gray-color;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        border-left: 3px solid transparent;
+
+        .sidenav-footer-icon {
+          font-size: 1.1rem;
+        }
+
+        &:hover {
+          background-color: rgba(vars.$primary-color, 0.08);
+          color: vars.$primary-color;
+        }
+
+        &.active {
+          background-color: rgba(vars.$primary-color, 0.12);
+          color: vars.$primary-color;
+          font-weight: 600;
+          border-left: 3px solid vars.$primary-color;
+        }
+      }
+
+      .sidenav-logout {
+        display: flex;
+        gap: 0.7rem;
+        padding: 0.6rem 1rem;
+        border-radius: 0.6rem;
+        color: vars.$gray-color;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        border-left: 3px solid transparent;
+        width: 100%;
+        background: none;
+        border-top: none;
+        border-right: none;
+        border-bottom: none;
+        cursor: pointer;
+
+        .sidenav-footer-icon {
+          font-size: 1.1rem;
+        }
+
+        &:hover {
+          background-color: rgba(239, 68, 68, 0.08);
+          color: #ef4444;
+          border-left: 3px solid #ef4444;
+        }
+      }
+    }
+  }
+}

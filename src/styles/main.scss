@@ -2,8 +2,12 @@
 @use "reset";
 @use "variables";
 
+@use "./app-layout.scss";
+
 @use "./components/Navbar.scss";
 @use "./components/Footer.scss";
+@use "./components/SideNav.scss";
+@use "./components/AppMainBar.scss";
 
 @use "./pages/landing";
 @use "./pages/login";
