@@ -4,6 +4,7 @@ import { FaTasks } from "react-icons/fa";
 import { IoIosMail } from "react-icons/io";
 import { FaCalendar } from "react-icons/fa";
 import { FaFileLines } from "react-icons/fa6";
+import { RiTeamFill } from "react-icons/ri";
 import { IoMdSettings } from "react-icons/io";
 import { MdLogout } from "react-icons/md";
 import { signOut } from "firebase/auth";
@@ -78,6 +79,11 @@ const pages: pagesType[] = [
     name: "Task-urile mele",
     icon: <FaTasks />,
     link: "/app/tasks",
+  },
+  {
+    name: "Echipe",
+    icon: <RiTeamFill />,
+    link: "/app/teams",
   },
   {
     name: "Calendar",
