@@ -5,8 +5,9 @@ import {
   reload,
   type User,
 } from "firebase/auth";
+import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
-import { auth } from "../../firebase/firebase";
+import { auth, db } from "../../firebase/firebase";
 
 export const Route = createFileRoute("/app/settings")({
   component: RouteComponent,
@@ -137,6 +138,18 @@ function RouteComponent() {
         photoURL,
       });
 
+      await setDoc(
+        doc(db, "users", user.uid),
+        {
+          uid: user.uid,
+          email: user.email?.toLowerCase() || "",
+          displayName: numeAfisat.trim(),
+          photoURL,
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true },
+      );
+
       await reload(user);
 
       setUser(auth.currentUser);
@@ -257,7 +270,7 @@ function RouteComponent() {
 
           <div className="settings-form-actions">
             <button type="submit" disabled={saving}>
-              {saving ? "Se salvează..." : "Salvează modificările"}
+              {saving ? "Se salvează..." : "Salvează"}
             </button>
           </div>
         </form>

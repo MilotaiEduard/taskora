@@ -76,7 +76,7 @@ const pages: pagesType[] = [
     link: "/app/newsletters",
   },
   {
-    name: "Task-urile mele",
+    name: "Task-uri",
     icon: <FaTasks />,
     link: "/app/tasks",
   },

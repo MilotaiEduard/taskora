@@ -2,8 +2,9 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import Navbar from "../components/Navbar";
 import { useState, type FormEvent } from "react";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { auth } from "../firebase/firebase";
+import { auth, db } from "../firebase/firebase";
 
 export const Route = createFileRoute("/signup")({
   component: RouteComponent,
@@ -37,14 +38,24 @@ function RouteComponent() {
     try {
       setLoading(true);
 
+      const normalizedEmail = email.trim().toLowerCase();
+
       const userCredential = await createUserWithEmailAndPassword(
         auth,
-        email,
+        normalizedEmail,
         parola,
       );
 
       await updateProfile(userCredential.user, {
         displayName: numeAfisat.trim(),
+      });
+
+      await setDoc(doc(db, "users", userCredential.user.uid), {
+        uid: userCredential.user.uid,
+        email: normalizedEmail,
+        displayName: numeAfisat.trim(),
+        photoURL: "",
+        createdAt: serverTimestamp(),
       });
 
       navigate({ to: "/app/dashboard" });

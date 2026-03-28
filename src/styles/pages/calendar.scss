@@ -1,0 +1,197 @@
+@use "../variables.scss" as vars;
+@use "../mixins.scss" as mixin;
+
+.calendar-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  .calendar-page-header {
+    background-color: #fff;
+    padding: 1.5rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+
+    .calendar-page-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 0.5rem;
+
+      @include mixin.tablet-mobile {
+        font-size: 1.5rem;
+      }
+    }
+
+    .calendar-page-subtitle {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: vars.$gray-color;
+
+      @include mixin.tablet-mobile {
+        font-size: 0.92rem;
+      }
+    }
+  }
+
+  .calendar-legend {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    background-color: #fff;
+    padding: 1rem 1.5rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+
+    .calendar-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      font-size: 0.92rem;
+      color: #475569;
+      font-weight: 500;
+
+      .calendar-legend-dot {
+        width: 0.85rem;
+        height: 0.85rem;
+        border-radius: 50%;
+
+        &.project {
+          background-color: #3b82f6;
+        }
+
+        &.task {
+          background-color: #f59e0b;
+        }
+
+        &.newsletter {
+          background-color: #22c55e;
+        }
+      }
+    }
+  }
+
+  .calendar-wrapper {
+    background-color: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+    border: 1px solid #e5edf5;
+    padding: 1rem;
+
+    .calendar-loading {
+      padding: 1rem;
+      color: vars.$gray-color;
+      font-size: 0.95rem;
+    }
+
+    .fc {
+      font-family: inherit;
+    }
+
+    .fc-toolbar {
+      margin-bottom: 1.25rem !important;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .fc-toolbar-title {
+      font-size: 1.15rem !important;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .fc-button {
+      border: 1px solid #dbe7f3 !important;
+      background: #fff !important;
+      color: #475569 !important;
+      border-radius: 10px !important;
+      padding: 0.5rem 0.85rem !important;
+      font-size: 0.9rem !important;
+      font-weight: 600 !important;
+      box-shadow: none !important;
+
+      &:hover {
+        border-color: vars.$primary-color !important;
+        color: vars.$primary-color !important;
+      }
+    }
+
+    .fc-button-active,
+    .fc-button:focus,
+    .fc-button-primary:not(:disabled).fc-button-active {
+      background: rgba(vars.$primary-color, 0.08) !important;
+      border-color: vars.$primary-color !important;
+      color: vars.$primary-color !important;
+      box-shadow: none !important;
+    }
+
+    .fc-scrollgrid,
+    .fc-theme-standard td,
+    .fc-theme-standard th {
+      border-color: #e5edf5 !important;
+    }
+
+    .fc-col-header-cell {
+      background: linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%);
+    }
+
+    .fc-col-header-cell-cushion {
+      padding: 0.8rem 0.5rem;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #334155;
+      text-decoration: none;
+    }
+
+    .fc-daygrid-day-number {
+      padding: 0.45rem;
+      font-size: 0.88rem;
+      color: #475569;
+      text-decoration: none;
+    }
+
+    .fc-day-today {
+      background-color: rgba(vars.$primary-color, 0.05) !important;
+    }
+
+    .fc-event {
+      border: none !important;
+      border-radius: 8px !important;
+      padding: 0.15rem 0.35rem !important;
+      font-size: 0.82rem !important;
+      font-weight: 600;
+    }
+
+    .fc-event-project {
+      background-color: #3b82f6 !important;
+    }
+
+    .fc-event-task {
+      background-color: #f59e0b !important;
+    }
+
+    .fc-event-newsletter {
+      background-color: #22c55e !important;
+    }
+
+    .fc-daygrid-more-link {
+      color: vars.$primary-color;
+      font-weight: 600;
+    }
+
+    @include mixin.tablet-mobile {
+      padding: 0.75rem;
+
+      .fc-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .fc-toolbar-chunk {
+        display: flex;
+        justify-content: center;
+      }
+    }
+  }
+}

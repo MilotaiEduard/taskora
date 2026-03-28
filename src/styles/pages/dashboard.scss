@@ -1,0 +1,250 @@
+@use "../variables.scss" as vars;
+@use "../mixins.scss" as mixin;
+
+.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+
+  .dashboard-loading {
+    background-color: #fff;
+    border-radius: 16px;
+    padding: 2rem;
+    color: vars.$gray-color;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+  }
+
+  .dashboard-header {
+    background-color: #fff;
+    padding: 1.5rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+
+    .dashboard-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 0.5rem;
+
+      @include mixin.tablet-mobile {
+        font-size: 1.5rem;
+      }
+    }
+
+    .dashboard-subtitle {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: vars.$gray-color;
+
+      @include mixin.tablet-mobile {
+        font-size: 0.92rem;
+      }
+    }
+  }
+
+  .dashboard-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.5rem;
+
+    @include mixin.tablet-mobile {
+      grid-template-columns: 1fr;
+    }
+
+    .dashboard-stat-card {
+      position: relative;
+      background-color: #fff;
+      border-radius: 16px;
+      padding: 1.25rem;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+      border: 1px solid #e5edf5;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      overflow: hidden;
+
+      .dashboard-stat-icon {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 12px;
+        background: linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%);
+        border: 1px solid #dbe7f3;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: vars.$primary-color;
+        box-shadow: 0 4px 10px rgba(59, 130, 246, 0.08);
+
+        svg {
+          font-size: 1.35rem;
+        }
+      }
+
+      .dashboard-stat-label {
+        font-size: 0.92rem;
+        color: vars.$gray-color;
+        padding-right: 3.5rem;
+      }
+
+      .dashboard-stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #111827;
+      }
+
+      .dashboard-stat-meta {
+        font-size: 0.88rem;
+        color: #64748b;
+      }
+    }
+  }
+
+  .dashboard-charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+
+    @include mixin.tablet-mobile {
+      grid-template-columns: 1fr;
+    }
+
+    .dashboard-chart-card {
+      background-color: #fff;
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+      border: 1px solid #e5edf5;
+
+      &.full-width {
+        grid-column: 1 / -1;
+      }
+
+      .dashboard-chart-wrapper {
+        width: 100%;
+        height: 280px;
+      }
+    }
+  }
+
+  .dashboard-bottom-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 1.5rem;
+
+    @include mixin.tablet-mobile {
+      grid-template-columns: 1fr;
+    }
+
+    .dashboard-list-card {
+      background-color: #fff;
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+      border: 1px solid #e5edf5;
+    }
+  }
+
+  .dashboard-card-header {
+    margin-bottom: 1rem;
+
+    h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #111827;
+    }
+  }
+
+  .dashboard-deadlines-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+
+    .dashboard-deadline-item {
+      padding: 0.95rem 1rem;
+      border-radius: 12px;
+      background: linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%);
+      border: 1px solid #dbe7f3;
+
+      .dashboard-deadline-main {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 0.35rem;
+
+        .dashboard-deadline-name {
+          font-weight: 600;
+          color: #111827;
+        }
+
+        .dashboard-deadline-type {
+          font-size: 0.82rem;
+          font-weight: 600;
+          color: vars.$primary-color;
+        }
+      }
+
+      .dashboard-deadline-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        font-size: 0.88rem;
+        color: vars.$gray-color;
+
+        span:last-child {
+          margin-left: auto;
+          text-align: right;
+          white-space: nowrap;
+        }
+
+        @include mixin.tablet-mobile {
+          flex-direction: column;
+          align-items: flex-start;
+
+          span:last-child {
+            margin-left: 0;
+            text-align: left;
+          }
+        }
+      }
+    }
+  }
+
+  .dashboard-summary-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+
+    .dashboard-summary-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.85rem 0;
+      border-bottom: 1px solid #eef2f7;
+
+      span {
+        color: #475569;
+        font-size: 0.95rem;
+      }
+
+      strong {
+        color: #111827;
+        font-size: 1rem;
+      }
+    }
+  }
+
+  .dashboard-empty-box {
+    padding: 1rem;
+    border-radius: 12px;
+    background-color: #f8fafc;
+    border: 1px dashed #d7e0ea;
+    color: vars.$gray-color;
+    font-size: 0.92rem;
+  }
+}
