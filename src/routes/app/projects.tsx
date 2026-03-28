@@ -293,9 +293,18 @@ function RouteComponent() {
     }
 
     try {
+      let usersToNotify: ProjectMember[] = [];
+
       if (isEditMode && selectedProjectId) {
         const existingProject = projects.find(
           (project) => project.id === selectedProjectId,
+        );
+
+        const existingMemberIds = existingProject?.memberIds || [];
+
+        usersToNotify = members.filter(
+          (member) =>
+            member.uid !== user.uid && !existingMemberIds.includes(member.uid),
         );
 
         await updateDoc(doc(db, "projects", selectedProjectId), {
@@ -314,6 +323,8 @@ function RouteComponent() {
             existingProject?.ownerDisplayName || user.displayName || "Owner",
         });
       } else {
+        usersToNotify = members.filter((member) => member.uid !== user.uid);
+
         await addDoc(collection(db, "projects"), {
           name: projectName.trim(),
           client: client.trim(),
@@ -329,6 +340,21 @@ function RouteComponent() {
           members,
           createdAt: serverTimestamp(),
         });
+      }
+
+      if (projectType === "De echipă" && usersToNotify.length > 0) {
+        await Promise.all(
+          usersToNotify.map((member) =>
+            addDoc(collection(db, "notifications"), {
+              recipientId: member.uid,
+              type: "project_added",
+              title: "Ai fost adăugat într-un proiect",
+              message: `Ai fost adăugat în proiectul "${projectName.trim()}".`,
+              isRead: false,
+              createdAt: serverTimestamp(),
+            }),
+          ),
+        );
       }
 
       await fetchProjects();

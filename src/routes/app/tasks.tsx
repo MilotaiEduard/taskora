@@ -332,7 +332,23 @@ function RouteComponent() {
     }
 
     try {
+      let usersToNotify: { uid: string; displayName: string }[] = [];
+
       if (isEditMode && selectedTaskId) {
+        const existingTask = tasks.find((task) => task.id === selectedTaskId);
+
+        if (
+          assignee.uid !== user.uid &&
+          assignee.uid !== existingTask?.assigneeId
+        ) {
+          usersToNotify = [
+            {
+              uid: assignee.uid,
+              displayName: assignee.displayName,
+            },
+          ];
+        }
+
         await updateDoc(doc(db, "tasks", selectedTaskId), {
           title: taskTitle.trim(),
           description: taskDescription.trim(),
@@ -345,6 +361,15 @@ function RouteComponent() {
           deadline,
         });
       } else {
+        if (assignee.uid !== user.uid) {
+          usersToNotify = [
+            {
+              uid: assignee.uid,
+              displayName: assignee.displayName,
+            },
+          ];
+        }
+
         await addDoc(collection(db, "tasks"), {
           title: taskTitle.trim(),
           description: taskDescription.trim(),
@@ -359,6 +384,21 @@ function RouteComponent() {
           deadline,
           createdAt: serverTimestamp(),
         });
+      }
+
+      if (usersToNotify.length > 0) {
+        await Promise.all(
+          usersToNotify.map((member) =>
+            addDoc(collection(db, "notifications"), {
+              recipientId: member.uid,
+              type: "task_assigned",
+              title: "Ți-a fost atribuit un task",
+              message: `Ți-a fost atribuit task-ul "${taskTitle.trim()}" din proiectul "${project.name}".`,
+              isRead: false,
+              createdAt: serverTimestamp(),
+            }),
+          ),
+        );
       }
 
       await fetchTasks();
