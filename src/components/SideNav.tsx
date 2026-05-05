@@ -17,7 +17,12 @@ type pagesType = {
   link: string;
 };
 
-export default function SideNav() {
+type SideNavProps = {
+  isOpen?: boolean;
+  onClose?: () => void;
+};
+
+export default function SideNav({ isOpen = true, onClose }: SideNavProps) {
   const navigate = useNavigate();
 
   async function handleLogout() {
@@ -26,36 +31,55 @@ export default function SideNav() {
   }
 
   return (
-    <div className="sidenav-container">
-      <Link to="/app/dashboard" className="sidenav-logo">
-        <img src="/assets/images/taskora-text-logo.png" alt="Taskora Logo" />
-      </Link>
+    <>
+      {/* Overlay pentru mobil */}
+      {isOpen && <div className="sidenav-overlay" onClick={onClose}></div>}
 
-      <div className="sidenav-pages-container">
-        <div className="sidenav-pages">
-          {pages.map((page) => (
-            <Link to={page.link} className="sidenav-page" key={page.name}>
-              <span className="sidenav-page-icon">{page.icon}</span>
-              <span className="sidenav-page-name">{page.name}</span>
-            </Link>
-          ))}
-        </div>
-
-        <div className="sidenav-footer">
-          <Link to="/app/settings" className="sidenav-footer-link">
-            <span className="sidenav-footer-icon">{<IoMdSettings />}</span>
-            <span className="sidenav-footer-name">Setări</span>
+      <div className={`sidenav-wrapper ${isOpen ? "open" : ""}`}>
+        <div className="sidenav-container">
+          <Link to="/app/dashboard" className="sidenav-logo" onClick={onClose}>
+            <img
+              src="/assets/images/taskora-text-logo.png"
+              alt="Taskora Logo"
+            />
           </Link>
 
-          <div className="sidenav-logout" onClick={handleLogout}>
-            <span className="sidenav-footer-icon">
-              <MdLogout />
-            </span>
-            <span className="sidenav-footer-name">Deconectează-te</span>
+          <div className="sidenav-pages-container">
+            <div className="sidenav-pages">
+              {pages.map((page) => (
+                <Link
+                  to={page.link}
+                  className="sidenav-page"
+                  key={page.name}
+                  onClick={onClose}
+                >
+                  <span className="sidenav-page-icon">{page.icon}</span>
+                  <span className="sidenav-page-name">{page.name}</span>
+                </Link>
+              ))}
+            </div>
+
+            <div className="sidenav-footer">
+              <Link
+                to="/app/settings"
+                className="sidenav-footer-link"
+                onClick={onClose}
+              >
+                <span className="sidenav-footer-icon">{<IoMdSettings />}</span>
+                <span className="sidenav-footer-name">Setări</span>
+              </Link>
+
+              <div className="sidenav-logout" onClick={handleLogout}>
+                <span className="sidenav-footer-icon">
+                  <MdLogout />
+                </span>
+                <span className="sidenav-footer-name">Deconectează-te</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

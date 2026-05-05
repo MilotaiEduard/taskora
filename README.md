@@ -1,73 +1,160 @@
-# React + TypeScript + Vite
+# Taskora
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Organizează proiectele. Coordonează echipa. Livrează rezultate.**
 
-Currently, two official plugins are available:
+Taskora este o platformă completă de management al proiectelor și task-urilor care combină organizarea proiectelor, atribuirea task-urilor și coordonarea echipei într-o singură aplicație intuitivă și eficientă.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Caracteristici principale
 
-## React Compiler
+### 📋 Management al proiectelor
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Creează și organizează proiecte cu deadline-uri clare
+- Gestionează echipe și atribuie roluri
+- Urmărește progresul proiectelor în timp real
 
-## Expanding the ESLint configuration
+### ✅ Gestionarea task-urilor
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Atribuie task-uri membrilor echipei
+- Urmărește stadiul fiecărui task (de la început până la final)
+- Organizează activitățile în funcție de priorități și deadline-uri
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### 👥 Colaborare în echipă
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- Spații de lucru colaborative
+- Vizibilitate completă asupra activității echipei
+- Notificări inteligente pentru actualizări
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### 📧 Gestionarea newsletterelor
+
+- Planifică și organizează newsletterele din cadrul proiectelor
+- Coordonează campanii de comunicare
+
+### 📊 Dashboard și statistici
+
+- Dashboard personal pentru utilizatori individuali
+- Statistici detaliate pentru manageri
+- Vizualizări grafice cu Recharts
+
+### 📅 Integrare calendar
+
+- Vizualizare calendaristică a proiectelor și task-urilor
+- Integrare cu FullCalendar
+
+## 🚀 Tehnologii utilizate
+
+- **Frontend**: React 19, TypeScript, Vite
+- **Routing**: TanStack Router
+- **Stilizare**: Sass/SCSS
+- **Backend**: Firebase
+- **UI Components**: React Icons
+- **Grafice**: Recharts
+- **Calendar**: FullCalendar
+
+## 🛠️ Instalare și configurare
+
+### Cerințe preliminare
+
+- Node.js (versiunea 18 sau mai nouă)
+- npm sau yarn
+- Cont Firebase pentru backend
+
+### Pași de instalare
+
+1. **Clonează repository-ul**
+
+   ```bash
+   git clone https://github.com/username/taskora.git
+   cd taskora
+   ```
+
+2. **Instalează dependențele**
+
+   ```bash
+   npm install
+   ```
+
+3. **Configurează Firebase**
+   - Creează un proiect Firebase în [Firebase Console](https://console.firebase.google.com/)
+   - Activează Authentication și Firestore
+   - Copiază configurația Firebase în `src/firebase/firebase.ts`
+
+4. **Rulează aplicația în modul dezvoltare**
+
+   ```bash
+   npm run dev
+   ```
+
+5. **Construiește pentru producție**
+   ```bash
+   npm run build
+   npm run preview
+   ```
+
+## 📁 Structura proiectului
+
+```
+taskora/
+├── public/
+│   └── assets/
+│       └── images/
+├── src/
+│   ├── components/          # Componente reutilizabile
+│   │   ├── AppMainBar.tsx
+│   │   ├── Footer.tsx
+│   │   ├── Navbar.tsx
+│   │   └── SideNav.tsx
+│   ├── firebase/            # Configurație Firebase
+│   ├── routes/              # Pagini și rute
+│   │   ├── __root.tsx
+│   │   ├── index.tsx        # Pagina principală
+│   │   ├── login.tsx
+│   │   ├── signup.tsx
+│   │   └── app/             # Rutele aplicației
+│   │       ├── dashboard.tsx
+│   │       ├── tasks.tsx
+│   │       ├── projects.tsx
+│   │       ├── employees.tsx
+│   │       ├── teams.tsx
+│   │       ├── calendar.tsx
+│   │       ├── newsletters.tsx
+│   │       └── settings.tsx
+│   ├── styles/              # Stiluri SCSS
+│   │   ├── main.scss
+│   │   ├── variables.scss
+│   │   ├── mixins.scss
+│   │   └── components/
+│   ├── App.tsx
+│   └── main.tsx
+├── package.json
+├── tsconfig.json
+├── vite.config.ts
+└── README.md
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🎯 Funcționalități disponibile
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Pentru utilizatori individuali
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- Dashboard personal pentru organizarea task-urilor
+- Gestionarea priorităților
+- Urmărirea progresului activităților
+
+### Pentru echipe mici
+
+- Spații de lucru colaborative
+- Atribuirea și urmărirea task-urilor
+- Vizibilitate asupra progresului echipei
+
+### Pentru organizații
+
+- Acces bazat pe roluri (manager, membru echipă)
+- Statistici detaliate și dashboard-uri
+- Gestionarea avansată a echipelor
+- Structură organizată a proiectelor
+
+## 🔧 Scripturi disponibile
+
+- `npm run dev` - Rulează aplicația în modul dezvoltare
+- `npm run build` - Construiește aplicația pentru producție
+- `npm run lint` - Rulează ESLint pentru verificarea codului
+- `npm run preview` - Previzualizează build-ul de producție

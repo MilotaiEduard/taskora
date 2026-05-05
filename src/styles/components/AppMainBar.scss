@@ -29,6 +29,36 @@
       margin-left: 0;
     }
 
+    .app-main-bar-hamburger {
+      width: 2.4rem;
+      height: 2.4rem;
+      border: none;
+      background: transparent;
+      border-radius: 8px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: vars.$gray-color;
+      transition: all 0.2s ease;
+      font-size: 1.3rem;
+      position: absolute;
+      left: 0;
+
+      @include mixin.tablet-mobile {
+        display: flex;
+      }
+
+      &:hover {
+        background-color: rgba(vars.$primary-color, 0.08);
+        color: vars.$primary-color;
+      }
+
+      &:active {
+        background-color: rgba(vars.$primary-color, 0.15);
+      }
+    }
+
     .app-main-bar-notifications-wrapper {
       position: relative;
 

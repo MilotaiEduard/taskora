@@ -1,14 +1,57 @@
 @use "../variables.scss" as vars;
+@use "../mixins.scss" as mixin;
+
+.sidenav-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  display: none;
+
+  @include mixin.tablet-mobile {
+    display: block;
+  }
+}
+
+.sidenav-wrapper {
+  @include mixin.tablet-mobile {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 280px;
+    height: 100vh;
+    z-index: 1000;
+    transition: left 0.3s ease;
+
+    &.open {
+      left: 0;
+    }
+  }
+}
 
 .sidenav-container {
   display: flex;
   flex-direction: column;
-  width: 20%;
   padding: 1rem;
-  min-height: 100%;
+  height: calc(100vh - 3rem);
   background-color: #fff;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 1.5rem;
+  overflow-y: auto;
+
+  @include mixin.tablet-mobile {
+    width: 100%;
+    height: 100vh;
+    border-radius: 0;
+    position: static;
+    top: auto;
+    box-shadow: none;
+  }
 
   .sidenav-logo {
     display: flex;

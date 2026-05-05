@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { IoNotificationsOutline, IoSettingsOutline } from "react-icons/io5";
 import { MdLogout } from "react-icons/md";
+import { HiMenu } from "react-icons/hi";
 import { onAuthStateChanged, signOut, type User } from "firebase/auth";
 import { useNavigate } from "@tanstack/react-router";
 import {
@@ -27,7 +28,11 @@ type NotificationItem = {
   };
 };
 
-export default function AppMainBar() {
+type AppMainBarProps = {
+  onToggleSidebar?: () => void;
+};
+
+export default function AppMainBar({ onToggleSidebar }: AppMainBarProps) {
   const navigate = useNavigate();
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -169,6 +174,17 @@ export default function AppMainBar() {
   return (
     <div className="app-main-bar">
       <div className="app-main-bar-actions">
+        {onToggleSidebar && (
+          <button
+            type="button"
+            className="app-main-bar-hamburger"
+            aria-label="Deschide meniul"
+            onClick={onToggleSidebar}
+          >
+            <HiMenu />
+          </button>
+        )}
+
         <div
           className="app-main-bar-notifications-wrapper"
           ref={notificationsRef}

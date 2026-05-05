@@ -20,6 +20,10 @@ import {
   MdOutlineMail,
   MdOutlineSchedule,
 } from "react-icons/md";
+import { FaFilePdf, FaFileCsv } from "react-icons/fa";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import * as XLSX from "xlsx";
 import { auth, db } from "../../firebase/firebase";
 
 export const Route = createFileRoute("/app/dashboard")({
@@ -90,6 +94,306 @@ function RouteComponent() {
 
     return `${day}-${month}-${year}`;
   }
+
+  // Funcție pentru a înlocui diacriticele românești
+  function removeDiacritics(text: string) {
+    return text
+      .replace(/ă/g, "a")
+      .replace(/Ă/g, "A")
+      .replace(/â/g, "a")
+      .replace(/Â/g, "A")
+      .replace(/î/g, "i")
+      .replace(/Î/g, "I")
+      .replace(/ș/g, "s")
+      .replace(/Ș/g, "S")
+      .replace(/ț/g, "t")
+      .replace(/Ț/g, "T")
+      .replace(/ț/g, "t")
+      .replace(/Ț/g, "T");
+  }
+
+  // Funcții pentru export
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+
+    // Titlu cu culoarea specificată
+    doc.setFontSize(20);
+    doc.setTextColor(29, 152, 241); // #1d98f1
+    doc.text(removeDiacritics("Raport Dashboard Taskora"), 20, 20);
+
+    // Data generării
+    doc.setTextColor(0, 0, 0); // Reset la negru
+    doc.setFontSize(10);
+    doc.text(`Generat la: ${new Date().toLocaleString("ro-RO")}`, 20, 30);
+
+    let yPosition = 45;
+
+    // Statistici generale
+    doc.setFontSize(14);
+    doc.setTextColor(29, 152, 241); // #1d98f1
+    doc.text(removeDiacritics("Statistici generale"), 20, yPosition);
+    doc.setTextColor(0, 0, 0); // Reset la negru
+    yPosition += 10;
+
+    const statsData = [
+      ["Metrica", "Valoare"],
+      [removeDiacritics("Proiecte totale"), projectStats.total.toString()],
+      [
+        removeDiacritics("Proiecte planificate"),
+        projectStats.planned.toString(),
+      ],
+      [
+        removeDiacritics("Proiecte in lucru"),
+        projectStats.inProgress.toString(),
+      ],
+      [
+        removeDiacritics("Proiecte finalizate"),
+        projectStats.completed.toString(),
+      ],
+      [removeDiacritics("Task-uri totale"), taskStats.total.toString()],
+      [removeDiacritics("Task-uri de facut"), taskStats.todo.toString()],
+      [removeDiacritics("Task-uri in lucru"), taskStats.inProgress.toString()],
+      [removeDiacritics("Task-uri finalizate"), taskStats.completed.toString()],
+      [
+        removeDiacritics("Newslettere totale"),
+        newsletterStats.total.toString(),
+      ],
+      [
+        removeDiacritics("Newslettere de facut"),
+        newsletterStats.todo.toString(),
+      ],
+      [
+        removeDiacritics("Newslettere in lucru"),
+        newsletterStats.inProgress.toString(),
+      ],
+      [
+        removeDiacritics("Newslettere finalizate"),
+        newsletterStats.completed.toString(),
+      ],
+    ];
+
+    autoTable(doc, {
+      startY: yPosition,
+      head: [statsData[0]],
+      body: statsData.slice(1),
+      theme: "grid",
+      headStyles: {
+        fillColor: [29, 152, 241], // #1d98f1 pentru header
+        textColor: 255,
+        fontStyle: "bold",
+      },
+      alternateRowStyles: {
+        fillColor: [248, 250, 252], // Culoare alternativă pentru rânduri
+      },
+    });
+
+    yPosition = (doc as any).lastAutoTable.finalY + 20;
+
+    // Proiecte
+    if (projects.length > 0) {
+      doc.setFontSize(14);
+      doc.setTextColor(29, 152, 241); // #1d98f1
+      doc.text("Proiecte", 20, yPosition);
+      doc.setTextColor(0, 0, 0); // Reset la negru
+      yPosition += 10;
+
+      const projectsData = [
+        ["Nume proiect", "Status", "Deadline", "Membri"],
+        ...projects.map((project) => [
+          removeDiacritics(project.name),
+          removeDiacritics(project.status),
+          formatDate(project.deadline),
+          project.memberIds.length.toString(),
+        ]),
+      ];
+
+      autoTable(doc, {
+        startY: yPosition,
+        head: [projectsData[0]],
+        body: projectsData.slice(1),
+        theme: "grid",
+        headStyles: {
+          fillColor: [29, 152, 241], // #1d98f1 pentru header
+          textColor: 255,
+          fontStyle: "bold",
+        },
+        alternateRowStyles: {
+          fillColor: [248, 250, 252], // Culoare alternativă pentru rânduri
+        },
+      });
+
+      yPosition = (doc as any).lastAutoTable.finalY + 20;
+    }
+
+    // Task-uri
+    if (tasks.length > 0) {
+      doc.setFontSize(14);
+      doc.setTextColor(29, 152, 241); // #1d98f1
+      doc.text("Task-uri", 20, yPosition);
+      doc.setTextColor(0, 0, 0); // Reset la negru
+      yPosition += 10;
+
+      const tasksData = [
+        ["Titlu", "Status", "Deadline", "Proiect"],
+        ...tasks.map((task) => [
+          removeDiacritics(task.title),
+          removeDiacritics(task.status),
+          formatDate(task.deadline),
+          removeDiacritics(task.projectName),
+        ]),
+      ];
+
+      autoTable(doc, {
+        startY: yPosition,
+        head: [tasksData[0]],
+        body: tasksData.slice(1),
+        theme: "grid",
+        headStyles: {
+          fillColor: [29, 152, 241], // #1d98f1 pentru header
+          textColor: 255,
+          fontStyle: "bold",
+        },
+        alternateRowStyles: {
+          fillColor: [248, 250, 252], // Culoare alternativă pentru rânduri
+        },
+      });
+
+      yPosition = (doc as any).lastAutoTable.finalY + 20;
+    }
+
+    // Newslettere
+    if (newsletters.length > 0) {
+      doc.setFontSize(14);
+      doc.setTextColor(29, 152, 241); // #1d98f1
+      doc.text("Newslettere", 20, yPosition);
+      doc.setTextColor(0, 0, 0); // Reset la negru
+      yPosition += 10;
+
+      const newslettersData = [
+        ["Nume", "Client", "Status", "Deadline"],
+        ...newsletters.map((newsletter) => [
+          removeDiacritics(newsletter.creationName),
+          removeDiacritics(newsletter.client),
+          removeDiacritics(newsletter.status),
+          formatDate(newsletter.deadline),
+        ]),
+      ];
+
+      autoTable(doc, {
+        startY: yPosition,
+        head: [newslettersData[0]],
+        body: newslettersData.slice(1),
+        theme: "grid",
+        headStyles: {
+          fillColor: [29, 152, 241], // #1d98f1 pentru header
+          textColor: 255,
+          fontStyle: "bold",
+        },
+        alternateRowStyles: {
+          fillColor: [248, 250, 252], // Culoare alternativă pentru rânduri
+        },
+      });
+    }
+
+    // Salvează PDF-ul
+    doc.save(`dashboard-taskora-${new Date().toISOString().split("T")[0]}.pdf`);
+  };
+
+  const exportToExcel = () => {
+    // Creează workbook-ul Excel
+    const wb = XLSX.utils.book_new();
+
+    // Statistici generale
+    const statsData = [
+      ["Tip", "Total", "In lucru", "Finalizate"],
+      [
+        "Proiecte",
+        projectStats.total,
+        projectStats.inProgress,
+        projectStats.completed,
+      ],
+      ["Task-uri", taskStats.total, taskStats.inProgress, taskStats.completed],
+      [
+        "Newslettere",
+        newsletterStats.total,
+        newsletterStats.inProgress,
+        newsletterStats.completed,
+      ],
+    ];
+
+    const wsStats = XLSX.utils.aoa_to_sheet(statsData);
+    XLSX.utils.book_append_sheet(wb, wsStats, "Statistici Generale");
+
+    // Proiecte
+    if (projects.length > 0) {
+      const projectsData = [
+        ["Nume Proiect", "Status", "Deadline", "Numar Membri"],
+        ...projects.map((project) => [
+          project.name,
+          project.status,
+          formatDate(project.deadline),
+          project.memberIds.length,
+        ]),
+      ];
+
+      const wsProjects = XLSX.utils.aoa_to_sheet(projectsData);
+      XLSX.utils.book_append_sheet(wb, wsProjects, "Proiecte");
+    }
+
+    // Task-uri
+    if (tasks.length > 0) {
+      const tasksData = [
+        ["Titlu", "Status", "Deadline", "Proiect"],
+        ...tasks.map((task) => [
+          task.title,
+          task.status,
+          formatDate(task.deadline),
+          task.projectName,
+        ]),
+      ];
+
+      const wsTasks = XLSX.utils.aoa_to_sheet(tasksData);
+      XLSX.utils.book_append_sheet(wb, wsTasks, "Task-uri");
+    }
+
+    // Newslettere
+    if (newsletters.length > 0) {
+      const newslettersData = [
+        ["Nume", "Client", "Status", "Deadline"],
+        ...newsletters.map((newsletter) => [
+          newsletter.creationName,
+          newsletter.client,
+          newsletter.status,
+          formatDate(newsletter.deadline),
+        ]),
+      ];
+
+      const wsNewsletters = XLSX.utils.aoa_to_sheet(newslettersData);
+      XLSX.utils.book_append_sheet(wb, wsNewsletters, "Newslettere");
+    }
+
+    // Deadline-uri apropiate
+    if (urgentDeadlines.length > 0) {
+      const deadlinesData = [
+        ["Nume", "Tip", "Deadline", "Detalii"],
+        ...urgentDeadlines.map((deadline) => [
+          deadline.name,
+          deadline.type,
+          formatDate(deadline.deadline),
+          deadline.extra || "",
+        ]),
+      ];
+
+      const wsDeadlines = XLSX.utils.aoa_to_sheet(deadlinesData);
+      XLSX.utils.book_append_sheet(wb, wsDeadlines, "Deadline-uri Apropiate");
+    }
+
+    // Generează și descarcă fișierul Excel
+    XLSX.writeFile(
+      wb,
+      `dashboard-taskora-${new Date().toISOString().split("T")[0]}.xlsx`,
+    );
+  };
 
   useEffect(() => {
     async function fetchDashboardData() {
@@ -283,11 +587,33 @@ function RouteComponent() {
   return (
     <div className="dashboard-page">
       <div className="dashboard-header">
-        <h1 className="dashboard-title">Dashboard</h1>
-        <p className="dashboard-subtitle">
-          O privire de ansamblu asupra proiectelor, task-urilor și
-          newsletterelor.
-        </p>
+        <div className="dashboard-header-content">
+          <div>
+            <h1 className="dashboard-title">Dashboard</h1>
+            <p className="dashboard-subtitle">
+              O privire de ansamblu asupra proiectelor, task-urilor și
+              newsletterelor.
+            </p>
+          </div>
+          <div className="dashboard-export-buttons">
+            <button
+              className="dashboard-export-button dashboard-export-pdf"
+              onClick={exportToPDF}
+              title="Exportă ca PDF"
+            >
+              <FaFilePdf />
+              <span>Export PDF</span>
+            </button>
+            <button
+              className="dashboard-export-button dashboard-export-csv"
+              onClick={exportToExcel}
+              title="Exportă ca Excel"
+            >
+              <FaFileCsv />
+              <span>Export Excel</span>
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="dashboard-stats-grid">

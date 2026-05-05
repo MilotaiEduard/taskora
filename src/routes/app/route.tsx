@@ -8,6 +8,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../firebase/firebase";
 import SideNav from "../../components/SideNav";
 import AppMainBar from "../../components/AppMainBar";
+import { useState } from "react";
 
 export const Route = createFileRoute("/app")({
   beforeLoad: async () => {
@@ -29,15 +30,24 @@ export const Route = createFileRoute("/app")({
 
 function AppLayout() {
   const location = useLocation();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const isSettingsPage = location.pathname.startsWith("/app/settings");
 
+  const toggleSidebar = () => {
+    setIsSidebarOpen((prev) => !prev);
+  };
+
+  const closeSidebar = () => {
+    setIsSidebarOpen(false);
+  };
+
   return (
     <div className="app-layout">
-      <SideNav />
+      <SideNav isOpen={isSidebarOpen} onClose={closeSidebar} />
 
       <div className="app-right-section">
-        {!isSettingsPage && <AppMainBar />}
+        {!isSettingsPage && <AppMainBar onToggleSidebar={toggleSidebar} />}
         <div className="app-page-content">
           <Outlet />
         </div>
