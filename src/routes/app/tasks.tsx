@@ -1,7 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
-import { IoClose, IoEllipsisHorizontal } from "react-icons/io5";
-import { MdOutlineAdd } from "react-icons/md";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
+import {
+  IoClose,
+  IoEllipsisHorizontal,
+  IoFilterOutline,
+  IoChevronDown,
+} from "react-icons/io5";
+import { MdOutlineAdd, MdOutlineRefresh } from "react-icons/md";
 import {
   addDoc,
   collection,
@@ -84,8 +89,15 @@ function RouteComponent() {
   const [deadline, setDeadline] = useState("");
   const [error, setError] = useState("");
 
+  const [filterStatus, setFilterStatus] = useState<"Toate" | TaskStatus>(
+    "Toate",
+  );
+  const [filterPriority, setFilterPriority] = useState<"Toate" | TaskPriority>(
+    "Toate",
+  );
+  const [filterProjectId, setFilterProjectId] = useState<string>("");
+
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-  const menuWrapperRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -193,10 +205,7 @@ function RouteComponent() {
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (
-        menuWrapperRef.current &&
-        !menuWrapperRef.current.contains(event.target as Node)
-      ) {
+      if (!(event.target as HTMLElement).closest(".task-card-actions")) {
         setOpenMenuId(null);
       }
     }
@@ -211,12 +220,35 @@ function RouteComponent() {
   const filteredTasks = useMemo(() => {
     if (!user) return [];
 
-    if (activeView === "atribuiteMie") {
-      return tasks.filter((task) => task.assigneeId === user.uid);
-    }
+    const baseTasks =
+      activeView === "atribuiteMie"
+        ? tasks.filter((task) => task.assigneeId === user.uid)
+        : tasks.filter(
+            (task) =>
+              task.creatorId === user.uid &&
+              task.assigneeId !== user.uid &&
+              projects.some((project) => project.id === task.projectId),
+          );
 
-    return tasks.filter((task) => task.creatorId === user.uid);
-  }, [activeView, tasks, user]);
+    return baseTasks.filter((task) => {
+      const matchesStatus =
+        filterStatus === "Toate" || task.status === filterStatus;
+      const matchesPriority =
+        filterPriority === "Toate" || task.priority === filterPriority;
+      const matchesProject =
+        !filterProjectId || task.projectId === filterProjectId;
+
+      return matchesStatus && matchesPriority && matchesProject;
+    });
+  }, [
+    activeView,
+    tasks,
+    user,
+    projects,
+    filterStatus,
+    filterPriority,
+    filterProjectId,
+  ]);
 
   function resetForm() {
     setTaskTitle("");
@@ -261,8 +293,28 @@ function RouteComponent() {
       return selectedProject.members;
     }
 
-    return selectedProject.members.filter((member) => member.uid === user.uid);
-  }, [selectedProject, user, isSelectedProjectOwner]);
+    // For non-owners, include current assignee if editing
+    const assignees = selectedProject.members.filter(
+      (member) => member.uid === user.uid,
+    );
+
+    if (isEditMode && selectedAssigneeId && selectedAssigneeId !== user.uid) {
+      const currentAssignee = selectedProject.members.find(
+        (member) => member.uid === selectedAssigneeId,
+      );
+      if (currentAssignee) {
+        assignees.push(currentAssignee);
+      }
+    }
+
+    return assignees;
+  }, [
+    selectedProject,
+    user,
+    isSelectedProjectOwner,
+    isEditMode,
+    selectedAssigneeId,
+  ]);
 
   useEffect(() => {
     if (!selectedProject || !user) {
@@ -275,14 +327,32 @@ function RouteComponent() {
       return;
     }
 
-    if (isSelectedProjectOwner) {
+    if (isSelectedProjectOwner || isEditMode) {
       return;
     }
 
     setSelectedAssigneeId(user.uid);
-  }, [selectedProjectId, selectedProject, user, isSelectedProjectOwner]);
+  }, [
+    selectedProjectId,
+    selectedProject,
+    user,
+    isSelectedProjectOwner,
+    isEditMode,
+  ]);
 
   function openEditModal(task: TaskData) {
+    const projectExists = projects.some(
+      (project) => project.id === task.projectId,
+    );
+    if (!projectExists) {
+      console.error(
+        "Proiectul pentru acest task nu mai există sau nu ai acces la el.",
+      );
+      return;
+    }
+
+    setIsEditMode(true);
+    setSelectedTaskId(task.id);
     setTaskTitle(task.title);
     setTaskDescription(task.description);
     setSelectedProjectId(task.projectId);
@@ -290,8 +360,6 @@ function RouteComponent() {
     setStatus(task.status);
     setPriority(task.priority);
     setDeadline(task.deadline);
-    setSelectedTaskId(task.id);
-    setIsEditMode(true);
     setIsModalOpen(true);
     setOpenMenuId(null);
   }
@@ -461,6 +529,74 @@ function RouteComponent() {
         </button>
       </div>
 
+      <div className="tasks-filters">
+        <div className="tasks-filter-group">
+          <label htmlFor="filterStatus" className="tasks-filter-label">
+            <IoFilterOutline />
+            <span>Status</span>
+          </label>
+          <select
+            id="filterStatus"
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value as any)}
+          >
+            <option value="Toate">Toate</option>
+            <option value="De făcut">De făcut</option>
+            <option value="În lucru">În lucru</option>
+            <option value="Finalizat">Finalizat</option>
+          </select>
+        </div>
+
+        <div className="tasks-filter-group">
+          <label htmlFor="filterPriority" className="tasks-filter-label">
+            <IoFilterOutline />
+            <span>Prioritate</span>
+          </label>
+          <select
+            id="filterPriority"
+            value={filterPriority}
+            onChange={(e) => setFilterPriority(e.target.value as any)}
+          >
+            <option value="Toate">Toate</option>
+            <option value="Scăzută">Scăzută</option>
+            <option value="Medie">Medie</option>
+            <option value="Ridicată">Ridicată</option>
+          </select>
+        </div>
+
+        <div className="tasks-filter-group">
+          <label htmlFor="filterProject" className="tasks-filter-label">
+            <IoFilterOutline />
+            <span>Proiect</span>
+          </label>
+          <select
+            id="filterProject"
+            value={filterProjectId}
+            onChange={(e) => setFilterProjectId(e.target.value)}
+          >
+            <option value="">Toate</option>
+            {projects.map((project) => (
+              <option key={project.id} value={project.id}>
+                {project.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <button
+          type="button"
+          className="tasks-filter-clear"
+          onClick={() => {
+            setFilterStatus("Toate");
+            setFilterPriority("Toate");
+            setFilterProjectId("");
+          }}
+        >
+          <MdOutlineRefresh />
+          Resetare filtre
+        </button>
+      </div>
+
       <div className="tasks-view-switcher">
         <button
           type="button"
@@ -494,35 +630,41 @@ function RouteComponent() {
                     <p className="task-card-project">{task.projectName}</p>
                   </div>
 
-                  <div className="task-card-actions" ref={menuWrapperRef}>
-                    <button
-                      type="button"
-                      className="task-card-menu-button"
-                      onClick={() =>
-                        setOpenMenuId((prev) =>
-                          prev === task.id ? null : task.id,
-                        )
-                      }
-                    >
-                      <IoEllipsisHorizontal />
-                    </button>
+                  <div className="task-card-actions">
+                    {projects.some(
+                      (project) => project.id === task.projectId,
+                    ) && (
+                      <>
+                        <button
+                          type="button"
+                          className="task-card-menu-button"
+                          onClick={() =>
+                            setOpenMenuId((prev) =>
+                              prev === task.id ? null : task.id,
+                            )
+                          }
+                        >
+                          <IoEllipsisHorizontal />
+                        </button>
 
-                    {openMenuId === task.id && (
-                      <div className="task-card-menu">
-                        <button
-                          type="button"
-                          onClick={() => openEditModal(task)}
-                        >
-                          Editează
-                        </button>
-                        <button
-                          type="button"
-                          className="delete-action"
-                          onClick={() => handleDeleteTask(task.id)}
-                        >
-                          Șterge
-                        </button>
-                      </div>
+                        {openMenuId === task.id && (
+                          <div className="task-card-menu">
+                            <button
+                              type="button"
+                              onClick={() => openEditModal(task)}
+                            >
+                              Editează
+                            </button>
+                            <button
+                              type="button"
+                              className="delete-action"
+                              onClick={() => handleDeleteTask(task.id)}
+                            >
+                              Șterge
+                            </button>
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>

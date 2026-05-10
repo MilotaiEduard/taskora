@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { IoClose, IoEllipsisHorizontal } from "react-icons/io5";
 import { MdOutlineAdd } from "react-icons/md";
 import {
@@ -84,7 +84,6 @@ function RouteComponent() {
   const [error, setError] = useState("");
 
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-  const menuWrapperRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -192,10 +191,7 @@ function RouteComponent() {
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (
-        menuWrapperRef.current &&
-        !menuWrapperRef.current.contains(event.target as Node)
-      ) {
+      if (!(event.target as HTMLElement).closest(".project-card-actions")) {
         setOpenMenuId(null);
       }
     }
@@ -231,10 +227,19 @@ function RouteComponent() {
   }
 
   function openEditModal(project: ProjectData) {
+    let teamId = project.teamId || "";
+    if (project.type === "De echipă" && project.teamId) {
+      const teamExists = ownedTeams.some((team) => team.id === project.teamId);
+      if (!teamExists) {
+        // Dacă echipa nu există, tratăm proiectul ca individual pentru editare
+        teamId = "";
+      }
+    }
+
     setProjectName(project.name);
     setClient(project.client);
     setProjectType(project.type);
-    setSelectedTeamId(project.teamId || "");
+    setSelectedTeamId(teamId);
     setStatus(project.status);
     setDeadline(project.deadline);
     setDescription(project.description);
@@ -428,10 +433,7 @@ function RouteComponent() {
                     </div>
 
                     {isOwner && (
-                      <div
-                        className="project-card-actions"
-                        ref={menuWrapperRef}
-                      >
+                      <div className="project-card-actions">
                         <button
                           type="button"
                           className="project-card-menu-button"

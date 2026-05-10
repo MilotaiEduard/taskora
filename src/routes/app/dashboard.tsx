@@ -37,6 +37,7 @@ type NewsletterStatus = "De făcut" | "În lucru" | "Finalizat";
 type ProjectData = {
   id: string;
   name: string;
+  type: "Individual" | "De echipă";
   status: ProjectStatus;
   deadline: string;
   memberIds: string[];
@@ -49,7 +50,9 @@ type TaskData = {
   deadline: string;
   assigneeId: string;
   creatorId: string;
+  projectId: string;
   projectName: string;
+  projectType?: "Individual" | "De echipă";
 };
 
 type NewsletterData = {
@@ -69,6 +72,30 @@ type DeadlineItem = {
   extra?: string;
 };
 
+type TeamMember = {
+  uid: string;
+  email: string;
+  displayName: string;
+  photoURL: string;
+  role: "owner" | "member";
+};
+
+type TeamData = {
+  id: string;
+  name: string;
+  ownerId: string;
+  ownerDisplayName: string;
+  members: TeamMember[];
+  memberIds: string[];
+};
+
+type MemberTaskStats = {
+  memberId: string;
+  memberName: string;
+  completedTasks: number;
+  totalAssigned: number;
+};
+
 const PIE_COLORS = ["#3b82f6", "#f59e0b", "#22c55e", "#ef4444"];
 
 function RouteComponent() {
@@ -76,6 +103,7 @@ function RouteComponent() {
   const [projects, setProjects] = useState<ProjectData[]>([]);
   const [tasks, setTasks] = useState<TaskData[]>([]);
   const [newsletters, setNewsletters] = useState<NewsletterData[]>([]);
+  const [teams, setTeams] = useState<TeamData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -419,17 +447,28 @@ function RouteComponent() {
           where("ownerId", "==", user.uid),
         );
 
-        const [projectsSnapshot, tasksSnapshot, newslettersSnapshot] =
-          await Promise.all([
-            getDocs(projectsQuery),
-            getDocs(tasksQuery),
-            getDocs(newslettersQuery),
-          ]);
+        const teamsQuery = query(
+          collection(db, "teams"),
+          where("memberIds", "array-contains", user.uid),
+        );
+
+        const [
+          projectsSnapshot,
+          tasksSnapshot,
+          newslettersSnapshot,
+          teamsSnapshot,
+        ] = await Promise.all([
+          getDocs(projectsQuery),
+          getDocs(tasksQuery),
+          getDocs(newslettersQuery),
+          getDocs(teamsQuery),
+        ]);
 
         const fetchedProjects: ProjectData[] = projectsSnapshot.docs.map(
           (docItem) => ({
             id: docItem.id,
             name: docItem.data().name,
+            type: docItem.data().type || "Individual",
             status: docItem.data().status,
             deadline: docItem.data().deadline,
             memberIds: docItem.data().memberIds || [],
@@ -461,9 +500,19 @@ function RouteComponent() {
             ownerId: docItem.data().ownerId,
           }));
 
+        const fetchedTeams: TeamData[] = teamsSnapshot.docs.map((docItem) => ({
+          id: docItem.id,
+          name: docItem.data().name,
+          ownerId: docItem.data().ownerId,
+          ownerDisplayName: docItem.data().ownerDisplayName || "Owner",
+          members: docItem.data().members || [],
+          memberIds: docItem.data().memberIds || [],
+        }));
+
         setProjects(fetchedProjects);
         setTasks(fetchedTasks);
         setNewsletters(fetchedNewsletters);
+        setTeams(fetchedTeams);
       } catch (error) {
         console.error("Eroare la încărcarea dashboard-ului:", error);
       } finally {
@@ -551,6 +600,44 @@ function RouteComponent() {
       .sort((a, b) => a.deadline.localeCompare(b.deadline))
       .slice(0, 6);
   }, [projects, tasks, newsletters]);
+
+  const teamPerformanceData = useMemo(() => {
+    return teams.map((team) => {
+      // Filtrez task-urile asignate membrilor echipei
+      const teamTasks = tasks.filter((task) =>
+        team.memberIds.includes(task.assigneeId),
+      );
+
+      // Grupez pe assignee și calculez statistici
+      const memberStats = new Map<string, MemberTaskStats>();
+
+      teamTasks.forEach((task) => {
+        const stats = memberStats.get(task.assigneeId) || {
+          memberId: task.assigneeId,
+          memberName:
+            team.members.find((m) => m.uid === task.assigneeId)?.displayName ||
+            "Unknown",
+          completedTasks: 0,
+          totalAssigned: 0,
+        };
+
+        stats.totalAssigned += 1;
+        if (task.status === "Finalizat") {
+          stats.completedTasks += 1;
+        }
+
+        memberStats.set(task.assigneeId, stats);
+      });
+
+      return {
+        teamId: team.id,
+        teamName: team.name,
+        data: Array.from(memberStats.values()).sort(
+          (a, b) => b.completedTasks - a.completedTasks,
+        ),
+      };
+    });
+  }, [teams, tasks]);
 
   const projectStats = {
     total: projects.length,
@@ -724,6 +811,102 @@ function RouteComponent() {
           </div>
         </div>
       </div>
+
+      {teamPerformanceData.length > 0 && (
+        <div className="dashboard-team-performance">
+          <div className="dashboard-section-title">
+            <h2>Performanța Echipelor</h2>
+            <p>Task-uri finalizate de fiecare membru echipă</p>
+          </div>
+
+          <div className="dashboard-team-charts-grid">
+            {teamPerformanceData.map((team) =>
+              team.data.length > 0 ? (
+                <div className="dashboard-chart-card" key={team.teamId}>
+                  <div className="dashboard-card-header">
+                    <h3>{team.teamName}</h3>
+                  </div>
+
+                  <div className="dashboard-chart-wrapper">
+                    <ResponsiveContainer width="100%" height={300}>
+                      <BarChart
+                        data={team.data}
+                        layout="vertical"
+                        margin={{ top: 5, right: 30, left: 200, bottom: 5 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis type="number" allowDecimals={false} />
+                        <YAxis
+                          dataKey="memberName"
+                          type="category"
+                          width={190}
+                          tick={{ fontSize: 12 }}
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: "#fff",
+                            border: "1px solid #ddd",
+                            borderRadius: "8px",
+                          }}
+                          formatter={(value) => value}
+                          labelFormatter={(label) => `Membru: ${label}`}
+                        />
+                        <Bar
+                          dataKey="completedTasks"
+                          fill="#22c55e"
+                          name="Finalizate"
+                          radius={[0, 8, 8, 0]}
+                        />
+                        <Bar
+                          dataKey="totalAssigned"
+                          fill="#e5e7eb"
+                          name="Total atribuite"
+                          radius={[0, 8, 8, 0]}
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  <div className="dashboard-team-stats">
+                    {team.data.map((member) => (
+                      <div
+                        className="dashboard-team-member-stat"
+                        key={member.memberId}
+                      >
+                        <span className="dashboard-team-member-name">
+                          {member.memberName}
+                        </span>
+                        <div className="dashboard-team-member-progress">
+                          <span className="dashboard-team-member-completed">
+                            {member.completedTasks}
+                          </span>
+                          <span className="dashboard-team-member-divider">
+                            /
+                          </span>
+                          <span className="dashboard-team-member-total">
+                            {member.totalAssigned}
+                          </span>
+                          <span className="dashboard-team-member-percentage">
+                            (
+                            {member.totalAssigned > 0
+                              ? Math.round(
+                                  (member.completedTasks /
+                                    member.totalAssigned) *
+                                    100,
+                                )
+                              : 0}
+                            %)
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null,
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="dashboard-bottom-grid">
         <div className="dashboard-list-card">

@@ -107,6 +107,118 @@
     }
   }
 
+  .tasks-filters {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1.2rem;
+    border-radius: 18px;
+    background-color: #ffffff;
+    border: 1px solid #e5edf5;
+    box-shadow: 0 6px 10px rgba(15, 23, 42, 0.08);
+
+    @include mixin.tablet-mobile {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .tasks-filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      min-width: 12rem;
+      flex: 1;
+      min-width: 13rem;
+
+      .tasks-filter-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        font-size: 0.86rem;
+        font-weight: 700;
+        color: #132240;
+      }
+
+      .tasks-filter-label svg {
+        font-size: 1rem;
+        color: vars.$primary-color;
+      }
+
+      select {
+        width: 100%;
+        min-height: 3.2rem;
+        border: 1px solid #d7e0ea;
+        border-radius: 14px;
+        padding: 0.7rem 2.5rem 0.7rem 1rem;
+        font-size: 0.95rem;
+        color: #1e293b;
+        background-color: #f8fafc;
+        appearance: none;
+        transition:
+          border-color 0.2s ease,
+          box-shadow 0.2s ease;
+        position: relative;
+      }
+
+      select:focus {
+        border-color: vars.$primary-color;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.08);
+        background-color: #fff;
+      }
+
+      select::after {
+        content: "";
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 0;
+        height: 0;
+        border-left: 0.4rem solid transparent;
+        border-right: 0.4rem solid transparent;
+        border-top: 0.4rem solid #64748b;
+        pointer-events: none;
+        transition: border-color 0.2s ease;
+      }
+
+      select:focus::after {
+        border-top-color: vars.$primary-color;
+      }
+    }
+
+    .tasks-filter-clear {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      min-height: 3.2rem;
+      padding: 0 1rem;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(
+        135deg,
+        rgba(59, 130, 246, 0.12),
+        rgba(56, 189, 248, 0.12)
+      );
+      color: vars.$primary-color;
+      font-weight: 700;
+      cursor: pointer;
+      transition:
+        transform 0.2s ease,
+        background-color 0.2s ease;
+
+      svg {
+        font-size: 1rem;
+      }
+
+      &:hover {
+        transform: translateY(-1px);
+        background-color: rgba(59, 130, 246, 0.12);
+      }
+    }
+  }
+
   .tasks-page-content {
     .tasks-grid {
       display: grid;

@@ -4,12 +4,15 @@ import { onAuthStateChanged, type User } from "firebase/auth";
 import {
   addDoc,
   collection,
+  deleteDoc,
+  doc,
   getDocs,
   query,
   serverTimestamp,
+  updateDoc,
   where,
 } from "firebase/firestore";
-import { IoClose } from "react-icons/io5";
+import { IoClose, IoEllipsisHorizontal } from "react-icons/io5";
 import { MdOutlineAdd } from "react-icons/md";
 import { auth, db } from "../../firebase/firebase";
 
@@ -48,12 +51,17 @@ function RouteComponent() {
   const [loading, setLoading] = useState(true);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editingTeamId, setEditingTeamId] = useState<string | null>(null);
   const [teamName, setTeamName] = useState("");
+  const [editTeamName, setEditTeamName] = useState("");
+  const [editTeamMembers, setEditTeamMembers] = useState<TeamMember[]>([]);
   const [searchEmail, setSearchEmail] = useState("");
   const [searchedUser, setSearchedUser] = useState<SearchUser | null>(null);
   const [selectedMembers, setSelectedMembers] = useState<SearchUser[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
   const [error, setError] = useState("");
   const [searchMessage, setSearchMessage] = useState("");
@@ -106,8 +114,26 @@ function RouteComponent() {
     fetchTeams();
   }, [user]);
 
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (!(event.target as HTMLElement).closest(".team-card-actions")) {
+        setOpenMenuId(null);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   function resetForm() {
     setTeamName("");
+    setEditTeamName("");
+    setEditTeamMembers([]);
+    setEditingTeamId(null);
+    setIsEditMode(false);
     setSearchEmail("");
     setSearchedUser(null);
     setSelectedMembers([]);
@@ -118,6 +144,20 @@ function RouteComponent() {
 
   function openModal() {
     resetForm();
+    setIsModalOpen(true);
+  }
+
+  function openEditModal(team: Team) {
+    setOpenMenuId(null);
+    setIsEditMode(true);
+    setEditingTeamId(team.id);
+    setEditTeamName(team.name);
+    setEditTeamMembers(team.members);
+    setSearchEmail("");
+    setSearchedUser(null);
+    setError("");
+    setSearchMessage("");
+    setSuccess("");
     setIsModalOpen(true);
   }
 
@@ -147,6 +187,18 @@ function RouteComponent() {
       setTeams(fetchedTeams);
     } catch (err) {
       console.error("Eroare la reîncărcarea echipelor:", err);
+    }
+  }
+
+  async function handleDeleteTeam(teamId: string) {
+    if (!teamId) return;
+
+    try {
+      await deleteDoc(doc(db, "teams", teamId));
+      setOpenMenuId(null);
+      await fetchTeamsAgain();
+    } catch (err) {
+      console.error("Eroare la ștergerea echipei:", err);
     }
   }
 
@@ -187,9 +239,9 @@ function RouteComponent() {
         return;
       }
 
-      const alreadySelected = selectedMembers.some(
-        (member) => member.uid === foundUser.uid,
-      );
+      const alreadySelected = isEditMode
+        ? editTeamMembers.some((member) => member.uid === foundUser.uid)
+        : selectedMembers.some((member) => member.uid === foundUser.uid);
 
       if (alreadySelected) {
         setSearchMessage("Acest utilizator este deja adăugat în echipă.");
@@ -213,14 +265,32 @@ function RouteComponent() {
   function handleAddMember() {
     if (!searchedUser) return;
 
-    setSelectedMembers((prev) => [...prev, searchedUser]);
+    if (isEditMode) {
+      setEditTeamMembers((prev) => [
+        ...prev,
+        {
+          uid: searchedUser.uid,
+          email: searchedUser.email,
+          displayName: searchedUser.displayName,
+          photoURL: searchedUser.photoURL,
+          role: "member",
+        },
+      ]);
+    } else {
+      setSelectedMembers((prev) => [...prev, searchedUser]);
+    }
+
     setSearchedUser(null);
     setSearchEmail("");
     setSearchMessage("");
   }
 
   function handleRemoveMember(uid: string) {
-    setSelectedMembers((prev) => prev.filter((member) => member.uid !== uid));
+    if (isEditMode) {
+      setEditTeamMembers((prev) => prev.filter((member) => member.uid !== uid));
+    } else {
+      setSelectedMembers((prev) => prev.filter((member) => member.uid !== uid));
+    }
   }
 
   async function handleCreateTeam(e: FormEvent<HTMLFormElement>) {
@@ -278,9 +348,72 @@ function RouteComponent() {
     }
   }
 
+  async function handleSaveTeam(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+
+    setError("");
+    setSuccess("");
+
+    if (!user) {
+      setError("Trebuie să fii autentificat.");
+      return;
+    }
+
+    if (!editingTeamId) {
+      setError("Echipa nu este selectată pentru editare.");
+      return;
+    }
+
+    if (!editTeamName.trim()) {
+      setError("Te rog să introduci numele echipei.");
+      return;
+    }
+
+    try {
+      setSaving(true);
+
+      const updatedMembers = editTeamMembers.map((member) => ({
+        ...member,
+        role: member.uid === user.uid ? "owner" : member.role || "member",
+      }));
+
+      await updateDoc(doc(db, "teams", editingTeamId), {
+        name: editTeamName.trim(),
+        members: updatedMembers,
+        memberIds: updatedMembers.map((member) => member.uid),
+        updatedAt: serverTimestamp(),
+      });
+
+      await fetchTeamsAgain();
+      setSuccess("Echipa a fost actualizată cu succes.");
+      closeModal();
+    } catch (err) {
+      console.error("Eroare la actualizarea echipei:", err);
+      setError("A apărut o eroare la actualizarea echipei.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
   function getMemberInitial(name: string) {
     return name?.trim()?.charAt(0)?.toUpperCase() || "U";
   }
+
+  const currentTeamName = isEditMode ? editTeamName : teamName;
+  const currentMembers = isEditMode
+    ? editTeamMembers
+    : selectedMembers.map((member) => ({
+        ...member,
+        role: "member" as const,
+      }));
+
+  const setCurrentTeamName = (value: string) => {
+    if (isEditMode) {
+      setEditTeamName(value);
+    } else {
+      setTeamName(value);
+    }
+  };
 
   return (
     <div className="teams-page">
@@ -316,8 +449,44 @@ function RouteComponent() {
                     </p>
                   </div>
 
-                  <div className="team-card-count">
-                    {team.members.length} membri
+                  <div className="team-card-actions">
+                    {user?.uid === team.ownerId && (
+                      <>
+                        <button
+                          type="button"
+                          className="team-card-menu-button"
+                          onClick={() =>
+                            setOpenMenuId((prev) =>
+                              prev === team.id ? null : team.id,
+                            )
+                          }
+                        >
+                          <IoEllipsisHorizontal />
+                        </button>
+
+                        {openMenuId === team.id && (
+                          <div className="team-card-menu">
+                            <button
+                              type="button"
+                              onClick={() => openEditModal(team)}
+                            >
+                              Editează
+                            </button>
+                            <button
+                              type="button"
+                              className="delete-action"
+                              onClick={() => handleDeleteTeam(team.id)}
+                            >
+                              Șterge
+                            </button>
+                          </div>
+                        )}
+                      </>
+                    )}
+
+                    <div className="team-card-count">
+                      {team.members.length} membri
+                    </div>
                   </div>
                 </div>
 
@@ -368,8 +537,12 @@ function RouteComponent() {
           <div className="teams-modal" onClick={(e) => e.stopPropagation()}>
             <div className="teams-modal-header">
               <div>
-                <h2>Creează echipă</h2>
-                <p>Adaugă un nume și caută membri după email.</p>
+                <h2>{isEditMode ? "Editează echipă" : "Creează echipă"}</h2>
+                <p>
+                  {isEditMode
+                    ? "Modifică numele echipei și gestionează membrii."
+                    : "Adaugă un nume și caută membri după email."}
+                </p>
               </div>
 
               <button className="teams-modal-close" onClick={closeModal}>
@@ -377,15 +550,18 @@ function RouteComponent() {
               </button>
             </div>
 
-            <form className="teams-form" onSubmit={handleCreateTeam}>
+            <form
+              className="teams-form"
+              onSubmit={isEditMode ? handleSaveTeam : handleCreateTeam}
+            >
               <div className="teams-form-group">
                 <label htmlFor="teamName">Nume echipă</label>
                 <input
                   id="teamName"
                   type="text"
                   placeholder="Introdu numele echipei"
-                  value={teamName}
-                  onChange={(e) => setTeamName(e.target.value)}
+                  value={currentTeamName}
+                  onChange={(e) => setCurrentTeamName(e.target.value)}
                 />
               </div>
 
@@ -464,42 +640,51 @@ function RouteComponent() {
                     <div className="selected-member-role owner">Owner</div>
                   </div>
 
-                  {selectedMembers.length > 0 ? (
-                    selectedMembers.map((member) => (
-                      <div className="selected-member" key={member.uid}>
-                        <div className="selected-member-left">
-                          <div className="selected-member-avatar">
-                            {member.photoURL ? (
-                              <img
-                                src={member.photoURL}
-                                alt={member.displayName}
-                              />
-                            ) : (
-                              <span>
-                                {getMemberInitial(member.displayName)}
-                              </span>
-                            )}
+                  {currentMembers.filter((member) => member.role !== "owner")
+                    .length > 0 ? (
+                    currentMembers
+                      .filter((member) => member.role !== "owner")
+                      .map((member) => (
+                        <div className="selected-member" key={member.uid}>
+                          <div className="selected-member-left">
+                            <div className="selected-member-avatar">
+                              {member.photoURL ? (
+                                <img
+                                  src={member.photoURL}
+                                  alt={member.displayName}
+                                />
+                              ) : (
+                                <span>
+                                  {getMemberInitial(member.displayName)}
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="selected-member-info">
+                              <div className="selected-member-name">
+                                {member.displayName}
+                              </div>
+                              <div className="selected-member-email">
+                                {member.email}
+                              </div>
+                            </div>
                           </div>
 
-                          <div className="selected-member-info">
-                            <div className="selected-member-name">
-                              {member.displayName}
+                          {member.role !== "owner" ? (
+                            <button
+                              type="button"
+                              className="remove-member-button"
+                              onClick={() => handleRemoveMember(member.uid)}
+                            >
+                              Elimină
+                            </button>
+                          ) : (
+                            <div className="selected-member-role owner">
+                              Owner
                             </div>
-                            <div className="selected-member-email">
-                              {member.email}
-                            </div>
-                          </div>
+                          )}
                         </div>
-
-                        <button
-                          type="button"
-                          className="remove-member-button"
-                          onClick={() => handleRemoveMember(member.uid)}
-                        >
-                          Elimină
-                        </button>
-                      </div>
-                    ))
+                      ))
                   ) : (
                     <div className="selected-members-empty">
                       Nu ai adăugat încă membri în echipă.
@@ -524,7 +709,11 @@ function RouteComponent() {
                   className="primary-button"
                   disabled={saving}
                 >
-                  {saving ? "Se salvează..." : "Creează echipa"}
+                  {saving
+                    ? "Se salvează..."
+                    : isEditMode
+                      ? "Salvează"
+                      : "Creează echipa"}
                 </button>
               </div>
             </form>
