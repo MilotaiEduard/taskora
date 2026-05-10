@@ -476,15 +476,22 @@ function RouteComponent() {
         );
 
         const fetchedTasks: TaskData[] = tasksSnapshot.docs
-          .map((docItem) => ({
-            id: docItem.id,
-            title: docItem.data().title,
-            status: docItem.data().status,
-            deadline: docItem.data().deadline,
-            assigneeId: docItem.data().assigneeId,
-            creatorId: docItem.data().creatorId,
-            projectName: docItem.data().projectName,
-          }))
+          .map((docItem) => {
+            const projectId = docItem.data().projectId;
+            const projectData = fetchedProjects.find((p) => p.id === projectId);
+
+            return {
+              id: docItem.id,
+              title: docItem.data().title,
+              status: docItem.data().status,
+              deadline: docItem.data().deadline,
+              assigneeId: docItem.data().assigneeId,
+              creatorId: docItem.data().creatorId,
+              projectId,
+              projectName: docItem.data().projectName,
+              projectType: projectData?.type,
+            };
+          })
           .filter(
             (task) =>
               task.assigneeId === user.uid || task.creatorId === user.uid,
@@ -603,9 +610,11 @@ function RouteComponent() {
 
   const teamPerformanceData = useMemo(() => {
     return teams.map((team) => {
-      // Filtrez task-urile asignate membrilor echipei
-      const teamTasks = tasks.filter((task) =>
-        team.memberIds.includes(task.assigneeId),
+      // Filtrez task-urile asignate membrilor echipei și din proiectele de echipă
+      const teamTasks = tasks.filter(
+        (task) =>
+          team.memberIds.includes(task.assigneeId) &&
+          task.projectType === "De echipă",
       );
 
       // Grupez pe assignee și calculez statistici
