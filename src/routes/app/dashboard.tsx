@@ -594,12 +594,14 @@ function RouteComponent() {
         deadline: task.deadline,
         extra: task.projectName,
       })),
-      ...newsletters.map((newsletter) => ({
-        id: newsletter.id,
-        name: newsletter.creationName,
-        type: "Newsletter" as const,
-        deadline: newsletter.deadline,
-      })),
+      ...newsletters
+        .filter((newsletter) => newsletter.status !== "Finalizat")
+        .map((newsletter) => ({
+          id: newsletter.id,
+          name: newsletter.creationName,
+          type: "Newsletter" as const,
+          deadline: newsletter.deadline,
+        })),
     ];
 
     return allItems

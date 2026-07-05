@@ -372,7 +372,17 @@ function RouteComponent() {
 
   async function handleDeleteProject(projectId: string) {
     try {
-      await deleteDoc(doc(db, "projects", projectId));
+      const tasksRef = collection(db, "tasks");
+      const tasksQuery = query(tasksRef, where("projectId", "==", projectId));
+      const tasksSnapshot = await getDocs(tasksQuery);
+
+      await Promise.all([
+        deleteDoc(doc(db, "projects", projectId)),
+        ...tasksSnapshot.docs.map((taskDoc) =>
+          deleteDoc(doc(db, "tasks", taskDoc.id)),
+        ),
+      ]);
+
       setProjects((prev) => prev.filter((project) => project.id !== projectId));
       setOpenMenuId(null);
     } catch (deleteError) {
@@ -571,6 +581,7 @@ function RouteComponent() {
                   placeholder="Introdu numele proiectului"
                   value={projectName}
                   onChange={(e) => setProjectName(e.target.value)}
+                  autoComplete="off"
                 />
               </div>
 
@@ -582,6 +593,7 @@ function RouteComponent() {
                   placeholder="Introdu numele clientului"
                   value={client}
                   onChange={(e) => setClient(e.target.value)}
+                  autoComplete="off"
                 />
               </div>
 

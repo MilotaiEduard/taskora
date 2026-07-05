@@ -95,14 +95,14 @@ const pages: pagesType[] = [
     link: "/app/projects",
   },
   {
-    name: "Newslettere",
-    icon: <IoIosMail />,
-    link: "/app/newsletters",
-  },
-  {
     name: "Task-uri",
     icon: <FaTasks />,
     link: "/app/tasks",
+  },
+  {
+    name: "Newslettere",
+    icon: <IoIosMail />,
+    link: "/app/newsletters",
   },
   {
     name: "Echipe",

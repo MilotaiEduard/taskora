@@ -65,6 +65,7 @@ type TaskData = {
 };
 
 type TaskView = "atribuiteMie" | "createDeMine";
+type TaskLayoutView = "carduri" | "tabel" | "kanban";
 
 function RouteComponent() {
   const [user, setUser] = useState<User | null>(null);
@@ -74,6 +75,7 @@ function RouteComponent() {
   const [projectsLoading, setProjectsLoading] = useState(true);
 
   const [activeView, setActiveView] = useState<TaskView>("atribuiteMie");
+  const [activeLayout, setActiveLayout] = useState<TaskLayoutView>("carduri");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -512,6 +514,45 @@ function RouteComponent() {
     }
   }
 
+  function renderTaskActions(task: TaskData) {
+    const hasProjectAccess = projects.some(
+      (project) => project.id === task.projectId,
+    );
+
+    return (
+      <div className="task-card-actions">
+        <button
+          type="button"
+          className="task-card-menu-button"
+          onClick={() =>
+            setOpenMenuId((prev) => (prev === task.id ? null : task.id))
+          }
+        >
+          <IoEllipsisHorizontal />
+        </button>
+
+        {openMenuId === task.id && (
+          <div className="task-card-menu">
+            <button
+              type="button"
+              onClick={() => openEditModal(task)}
+              disabled={!hasProjectAccess}
+            >
+              {hasProjectAccess ? "Editează" : "Proiect indisponibil"}
+            </button>
+            <button
+              type="button"
+              className="delete-action"
+              onClick={() => handleDeleteTask(task.id)}
+            >
+              Șterge
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="tasks-page">
       <div className="tasks-page-header">
@@ -596,22 +637,48 @@ function RouteComponent() {
         </button>
       </div>
 
-      <div className="tasks-view-switcher">
-        <button
-          type="button"
-          className={activeView === "atribuiteMie" ? "active" : ""}
-          onClick={() => setActiveView("atribuiteMie")}
-        >
-          Atribuite mie
-        </button>
+      <div className="tasks-toggle-row">
+        <div className="tasks-view-switcher">
+          <button
+            type="button"
+            className={activeView === "atribuiteMie" ? "active" : ""}
+            onClick={() => setActiveView("atribuiteMie")}
+          >
+            Atribuite mie
+          </button>
 
-        <button
-          type="button"
-          className={activeView === "createDeMine" ? "active" : ""}
-          onClick={() => setActiveView("createDeMine")}
-        >
-          Create de mine
-        </button>
+          <button
+            type="button"
+            className={activeView === "createDeMine" ? "active" : ""}
+            onClick={() => setActiveView("createDeMine")}
+          >
+            Create de mine
+          </button>
+        </div>
+
+        <div className="tasks-layout-switcher">
+          <button
+            type="button"
+            className={activeLayout === "carduri" ? "active" : ""}
+            onClick={() => setActiveLayout("carduri")}
+          >
+            Carduri
+          </button>
+          <button
+            type="button"
+            className={activeLayout === "tabel" ? "active" : ""}
+            onClick={() => setActiveLayout("tabel")}
+          >
+            Tabel
+          </button>
+          <button
+            type="button"
+            className={activeLayout === "kanban" ? "active" : ""}
+            onClick={() => setActiveLayout("kanban")}
+          >
+            Kanban
+          </button>
+        </div>
       </div>
 
       <div className="tasks-page-content">
@@ -620,91 +687,158 @@ function RouteComponent() {
             <h2>Se încarcă task-urile...</h2>
           </div>
         ) : filteredTasks.length > 0 ? (
-          <div className="tasks-grid">
-            {filteredTasks.map((task) => (
-              <div className="task-card" key={task.id}>
-                <div className="task-card-top">
-                  <div className="task-card-title-section">
-                    <h2 className="task-card-title">{task.title}</h2>
-                    <p className="task-card-project">{task.projectName}</p>
-                  </div>
-
-                  <div className="task-card-actions">
-                    {projects.some(
-                      (project) => project.id === task.projectId,
-                    ) && (
-                      <>
-                        <button
-                          type="button"
-                          className="task-card-menu-button"
-                          onClick={() =>
-                            setOpenMenuId((prev) =>
-                              prev === task.id ? null : task.id,
-                            )
-                          }
+          activeLayout === "tabel" ? (
+            <div className="tasks-table-wrapper">
+              <table className="tasks-table">
+                <thead>
+                  <tr>
+                    <th>Titlu</th>
+                    <th>Proiect</th>
+                    <th>Status</th>
+                    <th>Prioritate</th>
+                    <th>Atribuit</th>
+                    <th>Deadline</th>
+                    <th>Acțiuni</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredTasks.map((task) => (
+                    <tr key={task.id}>
+                      <td>
+                        <div className="task-table-title">
+                          <strong>{task.title}</strong>
+                          <span>{task.description || "Fără descriere"}</span>
+                        </div>
+                      </td>
+                      <td>{task.projectName}</td>
+                      <td>
+                        <span
+                          className={`task-card-status ${getStatusClass(task.status)}`}
                         >
-                          <IoEllipsisHorizontal />
-                        </button>
+                          {task.status}
+                        </span>
+                      </td>
+                      <td>
+                        <span
+                          className={`task-card-priority ${getPriorityClass(task.priority)}`}
+                        >
+                          {task.priority}
+                        </span>
+                      </td>
+                      <td>{task.assigneeName}</td>
+                      <td>{formatDate(task.deadline)}</td>
+                      <td>{renderTaskActions(task)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : activeLayout === "kanban" ? (
+            <div className="tasks-kanban">
+              {(["De făcut", "În lucru", "Finalizat"] as TaskStatus[]).map(
+                (statusColumn) => {
+                  const columnTasks = filteredTasks.filter(
+                    (task) => task.status === statusColumn,
+                  );
 
-                        {openMenuId === task.id && (
-                          <div className="task-card-menu">
-                            <button
-                              type="button"
-                              onClick={() => openEditModal(task)}
-                            >
-                              Editează
-                            </button>
-                            <button
-                              type="button"
-                              className="delete-action"
-                              onClick={() => handleDeleteTask(task.id)}
-                            >
-                              Șterge
-                            </button>
-                          </div>
+                  return (
+                    <div className="kanban-column" key={statusColumn}>
+                      <div className="kanban-column-header">
+                        <h3>{statusColumn}</h3>
+                        <span>{columnTasks.length}</span>
+                      </div>
+
+                      <div className="kanban-column-content">
+                        {columnTasks.length > 0 ? (
+                          columnTasks.map((task) => (
+                            <div className="kanban-task-card" key={task.id}>
+                              <div className="kanban-task-top">
+                                <strong>{task.title}</strong>
+                                {renderTaskActions(task)}
+                              </div>
+                              <p className="kanban-task-project">
+                                {task.projectName}
+                              </p>
+                              <div className="task-card-badges">
+                                <div
+                                  className={`task-card-status ${getStatusClass(task.status)}`}
+                                >
+                                  {task.status}
+                                </div>
+                                <div
+                                  className={`task-card-priority ${getPriorityClass(task.priority)}`}
+                                >
+                                  {task.priority}
+                                </div>
+                              </div>
+                              <div className="kanban-task-meta">
+                                <span>{task.assigneeName}</span>
+                                <span>{formatDate(task.deadline)}</span>
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <p className="kanban-empty">
+                            Nu există task-uri aici.
+                          </p>
                         )}
-                      </>
-                    )}
+                      </div>
+                    </div>
+                  );
+                },
+              )}
+            </div>
+          ) : (
+            <div className="tasks-grid">
+              {filteredTasks.map((task) => (
+                <div className="task-card" key={task.id}>
+                  <div className="task-card-top">
+                    <div className="task-card-title-section">
+                      <h2 className="task-card-title">{task.title}</h2>
+                      <p className="task-card-project">{task.projectName}</p>
+                    </div>
+
+                    {renderTaskActions(task)}
+                  </div>
+
+                  <div className="task-card-badges">
+                    <div
+                      className={`task-card-status ${getStatusClass(task.status)}`}
+                    >
+                      {task.status}
+                    </div>
+
+                    <div
+                      className={`task-card-priority ${getPriorityClass(task.priority)}`}
+                    >
+                      {task.priority}
+                    </div>
+                  </div>
+
+                  <div className="task-card-info">
+                    <div className="task-card-info-item">
+                      <span className="label">Atribuit către</span>
+                      <span className="value">{task.assigneeName}</span>
+                    </div>
+
+                    <div className="task-card-info-item">
+                      <span className="label">Creat de</span>
+                      <span className="value">{task.creatorName}</span>
+                    </div>
+
+                    <div className="task-card-info-item">
+                      <span className="label">Deadline</span>
+                      <span className="value">{formatDate(task.deadline)}</span>
+                    </div>
+                  </div>
+
+                  <div className="task-card-description">
+                    {task.description || "Fără descriere disponibilă."}
                   </div>
                 </div>
-
-                <div className="task-card-badges">
-                  <div
-                    className={`task-card-status ${getStatusClass(task.status)}`}
-                  >
-                    {task.status}
-                  </div>
-
-                  <div
-                    className={`task-card-priority ${getPriorityClass(task.priority)}`}
-                  >
-                    {task.priority}
-                  </div>
-                </div>
-
-                <div className="task-card-info">
-                  <div className="task-card-info-item">
-                    <span className="label">Atribuit către</span>
-                    <span className="value">{task.assigneeName}</span>
-                  </div>
-
-                  <div className="task-card-info-item">
-                    <span className="label">Creat de</span>
-                    <span className="value">{task.creatorName}</span>
-                  </div>
-
-                  <div className="task-card-info-item">
-                    <span className="label">Deadline</span>
-                    <span className="value">{formatDate(task.deadline)}</span>
-                  </div>
-                </div>
-
-                <div className="task-card-description">
-                  {task.description || "Fără descriere disponibilă."}
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )
         ) : (
           <div className="tasks-empty-state">
             <h2>Nu există task-uri momentan</h2>
@@ -746,6 +880,7 @@ function RouteComponent() {
                   placeholder="Introdu titlul task-ului"
                   value={taskTitle}
                   onChange={(e) => setTaskTitle(e.target.value)}
+                  autoComplete="off"
                 />
               </div>
 

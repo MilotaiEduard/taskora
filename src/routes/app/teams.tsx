@@ -562,6 +562,7 @@ function RouteComponent() {
                   placeholder="Introdu numele echipei"
                   value={currentTeamName}
                   onChange={(e) => setCurrentTeamName(e.target.value)}
+                  autoComplete="off"
                 />
               </div>
 
@@ -575,6 +576,7 @@ function RouteComponent() {
                     placeholder="Introdu emailul utilizatorului"
                     value={searchEmail}
                     onChange={(e) => setSearchEmail(e.target.value)}
+                    autoComplete="off"
                   />
                   <button
                     type="button"

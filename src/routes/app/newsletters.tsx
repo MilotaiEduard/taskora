@@ -539,6 +539,7 @@ function RouteComponent() {
                   placeholder="Introdu numele creației"
                   value={creationName}
                   onChange={(e) => setCreationName(e.target.value)}
+                  autoComplete="off"
                 />
               </div>
 
@@ -642,6 +643,7 @@ function RouteComponent() {
                   placeholder="Introdu linkul online"
                   value={onlineLink}
                   onChange={(e) => setOnlineLink(e.target.value)}
+                  autoComplete="off"
                 />
               </div>
 
